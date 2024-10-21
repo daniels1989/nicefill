@@ -8,19 +8,11 @@ function debug_print(message, ...)
     local args = table.pack(...)
     for i = 1, args.n do
         if type(args[i]) == 'table' then
-            args[i] = serpent.dump(args[i])
+            args[i] = serpent.block(args[i])
         end
     end
 
 	game.print(string.format(message, table.unpack(args, 1, args.n)))
-end
-
-function debug_log(message)
-	if not DEBUG then
-        return
-    end
-
-	log(message)
 end
 
 function string.starts(String,Start)
@@ -94,8 +86,8 @@ function do_nicefill( game, surface_index, item_name, tiles )
 	evtsurfacename = evtsurface.name;
 	nicename = "NiceFill_" .. evtsurfacename;
 
-	debug_log( "NiceFill on landfill" )
-	debug_print("Nicefill item : " .. serpent.dump( item_name ) )
+	if DEBUG then log( "NiceFill on landfill" ) end
+	debug_print("Nicefill item : " .. serpent.block( item_name ) )
 
 	if item_name ~= 'landfill' then
 		return
@@ -113,7 +105,7 @@ function do_nicefill( game, surface_index, item_name, tiles )
 
 		game.surfaces[nicename].force_generate_chunk_requests()
 
-		debug_log(serpent.block( game.surfaces[nicename].get_tile( tiles[1].position ).name ))
+		if DEBUG then log(serpent.block( NiceFillSurface.get_tile( tiles[1].position.x, tiles[1].position.y ).name )) end
 
 		if string.match(game.surfaces[nicename].get_tile( tiles[1].position ).name, "water") ~= nil then
 			-- fix incorrect surface
@@ -130,12 +122,13 @@ function do_nicefill( game, surface_index, item_name, tiles )
 
 		local map_gen_settings = evtsurface.map_gen_settings
 
-		--map_gen_settings.autoplace_controls = nil
-		--map_gen_settings.autoplace_controls = {}
-
+		if DEBUG then
 		for k,v in pairs(map_gen_settings.autoplace_controls) do
-			debug_log( serpent.block( k ) )
-			debug_log( serpent.block( v ) )
+				log(k .. ": " .. serpent.block(v))
+			end
+
+			log( serpent.block( map_gen_settings.cliff_settings ) )
+			log( serpent.block( map_gen_settings.autoplace_settings ) )
 		end
 
 		map_gen_settings.autoplace_controls["enemy-base"] = { frequency="none", size="none", richness="none" }
@@ -165,9 +158,6 @@ function do_nicefill( game, surface_index, item_name, tiles )
 			}
 		}
 
-		debug_log( serpent.block( map_gen_settings.cliff_settings ) )
-		debug_log( serpent.block( map_gen_settings.autoplace_settings ) )
-
 		map_gen_settings.water = "none"
 		map_gen_settings.starting_area = "none"
 		map_gen_settings.starting_points = {}
@@ -187,18 +177,18 @@ function do_nicefill( game, surface_index, item_name, tiles )
 			end
 		end
 
-		--log( serpent.block( map_gen_settings ) )
+		if DEBUG then log( serpent.block( map_gen_settings ) ) end
 
 		if pcall( game.create_surface,nicename, map_gen_settings ) then
 			if remote.interfaces["RSO"] then -- RSO compatibility
 				if pcall(remote.call, "RSO", "ignoreSurface", nicename) then
-					debug_log( "NiceFill surface registered with RSO." )
+					if DEBUG then log( "NiceFill surface registered with RSO." ) end
 				else
 					log( "NiceFill surface failed to register with RSO" )
 					debug_print( "NiceFill failed to register surface with RSO" )
 				end
 			end
-			debug_log( "NiceFill surface success." )
+			if DEBUG then log( "NiceFill surface success." ) end
 		else
 			log( "NiceFill surface fail." )
 			debug_print( "NiceFill failed create surface. Did you disable or enable any mods mid-game ?" );
@@ -244,7 +234,7 @@ function do_nicefill( game, surface_index, item_name, tiles )
 			local v = vv.position
 
 			--log( serpent.block ( evtsurface.get_tile({x=v.x-1,y=v.y}).name ) )
-			debug_log( "---WB BEGIN" )
+			if DEBUG then log( "---WB BEGIN" ) end
 
 			for i = -2,2 do
 				for j = -2,2 do
@@ -252,7 +242,7 @@ function do_nicefill( game, surface_index, item_name, tiles )
 
 					if evtsurface.get_tile(temp_position).name == "deepwater" then
 						local temp_tile = evtsurface.get_tile(temp_position)
-						debug_log( serpent.block( temp_tile ) )
+						if DEBUG then log( serpent.block( temp_tile ) ) end
 
 						--log( serpent.block( evtsurface.find_entities_filtered{position = temp_position, radius = 1} ) )
 
@@ -283,7 +273,7 @@ function do_nicefill( game, surface_index, item_name, tiles )
 					end
 				end
 			end
-			debug_log( "---WB END" )
+			if DEBUG then log( "---WB END" ) end
 		end
 
 		evtsurface.set_tiles( waterblend_tilelist )
@@ -308,8 +298,10 @@ script.on_init(
 
 script.on_event(defines.events.on_robot_built_tile,
 	function(event)
-		debug_log( "NiceFill on_robot_built_tile" )
-		debug_log( serpent.block( event ) )
+		if DEBUG then
+			log( "NiceFill on_robot_built_tile" )
+			log( serpent.block( event ) )
+		end
 
 		if not pcall(do_nicefill, game, event.surface_index, event.item.name, event.tiles ) then
 			log( "NiceFill failed." )
@@ -320,8 +312,10 @@ script.on_event(defines.events.on_robot_built_tile,
 
 script.on_event(defines.events.on_player_built_tile,
 	function(event)
-		debug_log( "NiceFill on_player_built_tile" )
-		debug_log( serpent.block(event) )
+		if DEBUG then
+			log( "NiceFill on_player_built_tile" )
+			log( serpent.block( event ) )
+		end
 
 		if not pcall(do_nicefill, game, event.surface_index, event.item.name, event.tiles ) then
 			log( "NiceFill failed." )
@@ -332,10 +326,13 @@ script.on_event(defines.events.on_player_built_tile,
 
 script.on_event(defines.events.script_raised_set_tiles,
 	function(event)
+		if DEBUG then
+			log( "NiceFill script_raised_set_tiles" )
+			log( serpent.block( event ) )
+		end
+
 		if not event.tiles or not event.tiles[1] then return end
 
-		debug_log( "NiceFill script_raised_set_tiles" )
-		debug_log( serpent.block(event) )
 
 		if not pcall(do_nicefill, game, event.surface_index, event.tiles[1].name, event.tiles ) then
 			log( "NiceFill failed." )
