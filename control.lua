@@ -89,56 +89,43 @@ function tmpsurface_get( tmpsurface, x, y )
 	return tmpsurface[x][y]
 end
 
-function do_nicefill( game, event )
-	if event.player_index == nil then
-		event.player_index = 1
-	end
-
-	--log( serpent.block( event ) )
-	--log( serpent.block( event.robot.surface.name ) )
-
-	evtsurface = game.surfaces[event.surface_index];
+function do_nicefill( game, surface_index, item_name, tiles )
+	evtsurface = game.surfaces[surface_index];
 	evtsurfacename = evtsurface.name;
 	nicename = "NiceFill_" .. evtsurfacename;
 
-	character = game.players[ event.player_index ]
-	printf(event.player_index, "Nicefill on_player_built_tile event : " .. serpent.dump( event ) )
-	printf(event.player_index, "Nicefill on_player_built_tile item : " .. serpent.dump( event.item.name ) )
-	printf(event.player_index, "Nicefill on_player_built_tile pos : " .. serpent.dump( type(event.positions) ) )
+	debug_log( "NiceFill on landfill" )
+	print_force("Nicefill item : " .. serpent.dump( item_name ) )
 
+	if item_name ~= 'landfill' then
+		return
+	end
 
-	--log( serpent.block( event.item ) )
-	--log( serpent.block( evtsurface ) )
-	--log( serpent.block( evtsurfacename ) )
-	--log( serpent.block( nicename ) )
-
-	if event.item.name == 'landfill' then
-		debug_log( "NiceFill on landfill" )
+	if item_name == 'landfill' then
 
 		--delete NiceFill surface, we are no longer using it
 		if game.surfaces["NiceFill"] ~= nil then
 			game.delete_surface("NiceFill")
 		end
 
-		if game.surfaces[nicename] ~= nil and event.tiles ~= nil and event.tiles[1] ~= nil then
+		if game.surfaces[nicename] ~= nil and tiles ~= nil and tiles[1] ~= nil then
 
-			if not game.surfaces[nicename].is_chunk_generated( {x=(event.tiles[1].position.x/32),y=(event.tiles[1].position.y/32)} ) then
-				game.surfaces[nicename].request_to_generate_chunks( {x=event.tiles[1].position.x,y=event.tiles[1].position.y}, 0 )
+			if not game.surfaces[nicename].is_chunk_generated( { x=(tiles[1].position.x/32), y=(tiles[1].position.y/32) } ) then
+				game.surfaces[nicename].request_to_generate_chunks( { x=tiles[1].position.x, y=tiles[1].position.y }, 0 )
 			end
 
 			game.surfaces[nicename].force_generate_chunk_requests()
 
 			debug_log(serpent.block( game.surfaces[nicename].get_tile( tiles[1].position ).name ))
 
-			if string.match(game.surfaces[nicename].get_tile( event.tiles[1].position ).name, "water") ~= nil then
+			if string.match(game.surfaces[nicename].get_tile( tiles[1].position ).name, "water") ~= nil then
 				-- fix incorrect surface
 				log( "NiceFill surface regenerate" )
 				game.delete_surface( nicename )
 			end
 		end
 
-		if game.surfaces[nicename] == nil
-		then
+		if game.surfaces[nicename] == nil then
 			print_force( serpent.dump( game.surfaces ) )
 			debug_log( serpent.dump( game.surfaces ) )
 
@@ -237,9 +224,8 @@ function do_nicefill( game, event )
 		local tilelist = {}	--this list is temporary, it contains tiles that has been landfilled, and we remove ready tiles from it each round.
 
 		--build teporary list of landfilled tiles
-		for k,vv in pairs(event.tiles) do
+		for k,vv in pairs(tiles) do
 			local v = vv.position -- quick fix for 0.16.17
-			local lc = 0;
 
 			if not NiceFillSurface.is_chunk_generated( {x=(v.x/32),y=(v.y/32)} ) then
 				NiceFillSurface.request_to_generate_chunks( {x=v.x,y=v.y}, 0 )
@@ -263,7 +249,7 @@ function do_nicefill( game, event )
 
 			--local tileghosts = {}
 
-			for k,vv in pairs(event.tiles) do
+			for k,vv in pairs(tiles) do
 				local v = vv.position
 
 				--log( serpent.block ( evtsurface.get_tile({x=v.x-1,y=v.y}).name ) )
