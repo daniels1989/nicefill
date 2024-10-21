@@ -298,9 +298,9 @@ end
 script.on_init(
 	function()
 		debug_print("Nicefill INIT.")
-		-- if game.active_mods["FARL"] then
-		-- 	remote.call("farl", "add_entity_to_trigger", "grass-1")
-		-- end
+		if script.active_mods["FARL"] then
+			remote.call("farl", "add_entity_to_trigger", "grass-1")
+		end
 	end
 )
 
