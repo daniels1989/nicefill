@@ -82,7 +82,7 @@ function tmpsurface_get( tmpsurface, x, y )
 end
 
 function do_nicefill( game, surface_index, item_name, tiles )
-	evtsurface = game.surfaces[surface_index];
+	evtsurface = game.get_surface(surface_index);
 	evtsurfacename = evtsurface.name;
 	nicename = "NiceFill_" .. evtsurfacename;
 
@@ -94,29 +94,33 @@ function do_nicefill( game, surface_index, item_name, tiles )
 	end
 
 	--delete NiceFill surface, we are no longer using it
-	if game.surfaces["NiceFill"] ~= nil then
+	if game.get_surface("NiceFill") ~= nil then
 		game.delete_surface("NiceFill")
 	end
 
-	if game.surfaces[nicename] ~= nil and tiles ~= nil and tiles[1] ~= nil then
-		if not game.surfaces[nicename].is_chunk_generated( { x=(tiles[1].position.x/32), y=(tiles[1].position.y/32) } ) then
-			game.surfaces[nicename].request_to_generate_chunks( { x=tiles[1].position.x, y=tiles[1].position.y }, 0 )
+	NiceFillSurface = game.get_surface(nicename)
+
+	if NiceFillSurface ~= nil and tiles ~= nil and tiles[1] ~= nil then
+		if not NiceFillSurface.is_chunk_generated( { x=(tiles[1].position.x/32), y=(tiles[1].position.y/32) } ) then
+			NiceFillSurface.request_to_generate_chunks( { x=tiles[1].position.x, y=tiles[1].position.y }, 0 )
 		end
 
-		game.surfaces[nicename].force_generate_chunk_requests()
+		NiceFillSurface.force_generate_chunk_requests()
 
 		if DEBUG then log(serpent.block( NiceFillSurface.get_tile( tiles[1].position.x, tiles[1].position.y ).name )) end
 
-		if string.match(game.surfaces[nicename].get_tile( tiles[1].position ).name, "water") ~= nil then
+		if string.match(NiceFillSurface.get_tile( tiles[1].position.x, tiles[1].position.y ).name, "water") ~= nil then
 			-- fix incorrect surface
 			log( "NiceFill surface regenerate" )
 			game.delete_surface( nicename )
 		end
 	end
 
-	if game.surfaces[nicename] == nil then
-		debug_print( serpent.dump( game.surfaces ) )
-		debug_log( serpent.dump( game.surfaces ) )
+	NiceFillSurface = game.get_surface(nicename)
+
+	if NiceFillSurface == nil then
+		debug_print( "Creating Nicefill surface" )
+		if DEBUG then log( "Creating Nicefill surface" ) end
 
 		-- make a copy of the world, without water.
 
@@ -194,12 +198,17 @@ function do_nicefill( game, surface_index, item_name, tiles )
 			debug_print( "NiceFill failed create surface. Did you disable or enable any mods mid-game ?" );
 		end
 
-		NiceFillSurface = game.surfaces[nicename]
+		if DEBUG then
+			log( serpent.block( evtsurface.map_gen_settings ) )
+			log( serpent.block( game.surfaces[nicename].map_gen_settings ) )
+		end
+	end
 
-		debug_log( serpent.block( evtsurface.map_gen_settings ) )
-		debug_log( serpent.block( game.surfaces[nicename].map_gen_settings ) )
-	else
-		NiceFillSurface = game.surfaces[nicename]
+	NiceFillSurface = game.get_surface(nicename)
+
+	if NiceFillSurface == nil then
+		log( "NiceFill surface fail." )
+		debug_print( "NiceFill failed." );
 	end
 
 	local tilelist = {}	--this list is temporary, it contains tiles that has been landfilled, and we remove ready tiles from it each round.
