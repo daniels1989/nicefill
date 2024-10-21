@@ -271,35 +271,37 @@ function do_nicefill( game, event )
 
 				for i = -2,2 do
 					for j = -2,2 do
-						tmppos = {x=(v.x+j),y=(v.y+i)}
-						if evtsurface.get_tile(tmppos).name == "deepwater" then
-							local tmptile = evtsurface.get_tile(tmppos)
-							if DEBUG then log( serpent.block( tmptile ) ) end
-							--log( serpent.block( evtsurface.find_entities_filtered{position = tmppos, radius = 1} ) )
+						temp_position = { x=(v.x + j), y=(v.y + i) }
 
-							local tmptg = evtsurface.find_entities_filtered{position = tmppos, radius = 1, type="tile-ghost"}
+						if evtsurface.get_tile(temp_position).name == "deepwater" then
+							local temp_tile = evtsurface.get_tile(temp_position)
+							debug_log( serpent.block( temp_tile ) )
+
+							--log( serpent.block( evtsurface.find_entities_filtered{position = temp_position, radius = 1} ) )
+
+							local temp_tile_ghosts = evtsurface.find_entities_filtered{position = temp_position, radius = 1, type="tile-ghost"}
 
 							local preserve_ghost = false
 
-							for tgk,tgv in pairs(tmptg) do
+							for _, temp_tile_ghost in pairs(temp_tile_ghosts) do
 								--log( "---WB TILE BEGIN" )
-								--log( serpent.block( tgv.ghost_type ) )
-								--log( serpent.block( tgv.ghost_name ) )
-								--log( serpent.block( tgv.position ) )
-								--log( serpent.block( tmppos ) )
+								--log( serpent.block( temp_tile_ghost.ghost_type ) )
+								--log( serpent.block( temp_tile_ghost.ghost_name ) )
+								--log( serpent.block( temp_tile_ghost.position ) )
+								--log( serpent.block( temp_position ) )
 								--log( "---WB TILE END" )
 
 								preserve_ghost = true
-								--if tmppos.x == absfloor(tgv.position.x) and tmppos.y == absfloor(tgv.position.y) then
+								--if temp_position.x == absfloor(temp_tile_ghost.position.x) and temp_position.y == absfloor(temp_tile_ghost.position.y) then
 								--	log("PRESERVE")
 								--end
-								--if tgv.ghost_name == "landfill" then
-								--	table.insert( tileghosts, tmppos )
+								--if temp_tile_ghost.ghost_name == "landfill" then
+								--	table.insert( tileghosts, temp_position )
 								--end
 							end
 
 							if preserve_ghost == false then
-								table.insert( waterblend_tilelist, {name="water", position = tmppos } )
+								table.insert( waterblend_tilelist, { name="water", position = temp_position } )
 							end
 						end
 					end
@@ -309,8 +311,8 @@ function do_nicefill( game, event )
 
 			evtsurface.set_tiles( waterblend_tilelist )
 
-			--for tgk,tgv in pairs(tileghosts) do
-			--	evtsurface.create_entity( { name = "entity-ghost", inner_name = "landfill", position = tgv } )
+			--for _, tile_ghost in pairs(tileghosts) do
+			--	evtsurface.create_entity( { name = "entity-ghost", inner_name = "landfill", position = tile_ghost } )
 			--end
 
 		end
