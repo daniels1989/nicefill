@@ -101,18 +101,15 @@ function do_nicefill( game, surface_index, item_name, tiles )
 		return
 	end
 
-	if item_name == 'landfill' then
+	--delete NiceFill surface, we are no longer using it
+	if game.surfaces["NiceFill"] ~= nil then
+		game.delete_surface("NiceFill")
+	end
 
-		--delete NiceFill surface, we are no longer using it
-		if game.surfaces["NiceFill"] ~= nil then
-			game.delete_surface("NiceFill")
+	if game.surfaces[nicename] ~= nil and tiles ~= nil and tiles[1] ~= nil then
+		if not game.surfaces[nicename].is_chunk_generated( { x=(tiles[1].position.x/32), y=(tiles[1].position.y/32) } ) then
+			game.surfaces[nicename].request_to_generate_chunks( { x=tiles[1].position.x, y=tiles[1].position.y }, 0 )
 		end
-
-		if game.surfaces[nicename] ~= nil and tiles ~= nil and tiles[1] ~= nil then
-
-			if not game.surfaces[nicename].is_chunk_generated( { x=(tiles[1].position.x/32), y=(tiles[1].position.y/32) } ) then
-				game.surfaces[nicename].request_to_generate_chunks( { x=tiles[1].position.x, y=tiles[1].position.y }, 0 )
-			end
 
 			game.surfaces[nicename].force_generate_chunk_requests()
 
@@ -187,16 +184,12 @@ function do_nicefill( game, surface_index, item_name, tiles )
             for name, _ in pairs(game.tile_prototypes) do
                 if name:find("water") then
                     map_gen_settings.property_expression_names["tile:"..name..":probability"] = -1000
-                end
-            end
+			end
+		end
 
-			-- if not pcall(game.create_surface( "NiceFill", map_gen_settings )) then
-				-- log( "Failed to create surface " .. serpent.block( map_gen_settings ) )
-			-- end
+		--log( serpent.block( map_gen_settings ) )
 
-			--log( serpent.block( map_gen_settings ) )
-
-			if pcall( game.create_surface,nicename, map_gen_settings ) then
+		if pcall( game.create_surface,nicename, map_gen_settings ) then
 				if remote.interfaces["RSO"] then -- RSO compatibility
 					if pcall(remote.call, "RSO", "ignoreSurface", nicename) then
 						debug_log( "NiceFill surface registered with RSO." )
@@ -299,11 +292,9 @@ function do_nicefill( game, surface_index, item_name, tiles )
 			--	evtsurface.create_entity( { name = "entity-ghost", inner_name = "landfill", position = tile_ghost } )
 			--end
 
-		end
-
-		evtsurface.set_tiles( tilelist );
-
 	end
+
+	evtsurface.set_tiles( tilelist );
 end
 
 script.on_init(
