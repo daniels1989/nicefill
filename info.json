@@ -1,10 +1,10 @@
 {
     "name": "nicefill-scriptfix",
-    "version": "0.1.21",
+    "version": "0.2.0",
     "title": "NiceFill",
     "description": "Landfill has the same texture as the surrounding tiles, instead of the default grass.",
     "factorio_version": "2.0",
-    "dependencies": ["base >= 0.17.35","? FARL >= 2.1.1"],
+    "dependencies": ["base >= 2.0.7","? FARL >= 2.1.1"],
     "author": "staviq, daniels1989",
     "contact": "",
     "homepage": ""
