@@ -1,6 +1,6 @@
 DEBUG = false
 
-function printf(p,s, ...)
+function print_force(message, ...)
     if not DEBUG then
         return
     end
@@ -8,14 +8,11 @@ function printf(p,s, ...)
     local args = table.pack(...)
     for i = 1, args.n do
         if type(args[i]) == 'table' then
-            args[i] = dump(args[i])
+            args[i] = serpent.dump(args[i])
         end
     end
-	local character = game.players[p]
-	if character ~= nil then
-		character.force.print(string.format(s, table.unpack(args, 1, args.n)))
-	else
-		log( string.format(s, table.unpack(args, 1, args.n)) )
+
+	game.player.force.print(string.format(message, table.unpack(args, 1, args.n)))
 	end
 end
 
@@ -29,16 +26,13 @@ function string.starts(String,Start)
    return string.sub(String,1,string.len(Start))==Start
 end
 
--- /c game.character.teleport({-1143,-66}, "nauvis")
-
-script.on_init(
-	function()
-		printf(1, "Nicefill INIT.")
-		if game.active_mods["FARL"] then
-			remote.call("farl", "add_entity_to_trigger", "grass-1")
-		end
+function absfloor( x )
+	if x > 0 then
+		return math.floor(x)
 	end
-)
+
+	return math.ceil(x)
+end
 
 -- local function spawn_tiles()
 -- 	local tiles = {
@@ -94,14 +88,6 @@ function tmpsurface_get( tmpsurface, x, y )
 	return tmpsurface[x][y]
 end
 
-function absfloor( x )
-	if x > 0 then
-		return math.floor(x)
-	end
-
-	return math.ceil(x)
-end
-
 function do_nicefill( game, event )
 	if event.player_index == nil then
 		event.player_index = 1
@@ -152,7 +138,7 @@ function do_nicefill( game, event )
 
 		if game.surfaces[nicename] == nil
 		then
-			printf( event.player_index, serpent.dump( game.surfaces ) )
+			print_force( serpent.dump( game.surfaces ) )
 			if DEBUG then log( serpent.dump( game.surfaces ) ) end
 			-- make a copy of the world, without water.
 
@@ -193,8 +179,8 @@ function do_nicefill( game, event )
 				}
 			}
 
-			--printf( event.player_index, serpent.block( map_gen_settings.cliff_settings ) )
-			--printf( event.player_index, serpent.block( map_gen_settings.autoplace_settings ) )
+
+
 			if DEBUG then
 				log( serpent.block( map_gen_settings.cliff_settings ) )
 				log( serpent.block( map_gen_settings.autoplace_settings ) )
@@ -237,7 +223,7 @@ function do_nicefill( game, event )
 				if DEBUG then log( "NiceFill surface success." ) end
 			else
 				log( "NiceFill surface fail." )
-				force_debug( "NiceFill failed create surface. Did you disable or enable any mods mid-game ?" );
+				print_force( "NiceFill failed create surface. Did you disable or enable any mods mid-game ?" );
 			end
 
 
@@ -335,6 +321,15 @@ function do_nicefill( game, event )
 	end
 end
 
+script.on_init(
+	function()
+		print_force("Nicefill INIT.")
+		-- if game.active_mods["FARL"] then
+		-- 	remote.call("farl", "add_entity_to_trigger", "grass-1")
+		-- end
+	end
+)
+
 script.on_event(defines.events.on_robot_built_tile,
 	function(event)
 		if DEBUG then log( serpent.block( event ) ) end
@@ -368,7 +363,7 @@ script.on_event(defines.events.on_robot_built_tile,
 
 		if not pcall(do_nicefill, game, event ) then
 			log( "NiceFill failed." )
-			force_debug( "NiceFill failed." );
+			print_force( "NiceFill failed." );
 		end
 
 		--do_nicefill(game, event)
@@ -395,7 +390,7 @@ script.on_event(defines.events.on_player_built_tile,
 
 		if not pcall(do_nicefill, game, event ) then
 			log( "NiceFill failed." )
-		--	force_debug( "NiceFill failed." );
+			print_force( "NiceFill failed." );
 		end
 
 		--log( serpent.block( sfcindex[game.players[event.player_index].surface.name] ) )
@@ -421,7 +416,7 @@ script.on_event(defines.events.script_raised_set_tiles,
 script.on_event(defines.events.on_chunk_generated,
 	function(event)
 		if string.starts(event.surface.name, "NiceFill") then
-			printf( 1, serpent.block( event.area ) )
+			print_force(serpent.block( event.area ) )
 		end
 	end
 )
