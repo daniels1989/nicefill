@@ -1,4 +1,4 @@
-DEBUG = true
+DEBUG = false
 
 function debug_print(message, ...)
     if not DEBUG then
@@ -127,7 +127,7 @@ function do_nicefill( surface_index, item_name, tiles )
 		local map_gen_settings = evtsurface.map_gen_settings
 
 		if DEBUG then
-		for k,v in pairs(map_gen_settings.autoplace_controls) do
+			for k,v in pairs(map_gen_settings.autoplace_controls) do
 				log(k .. ": " .. serpent.block(v))
 			end
 
