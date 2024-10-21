@@ -81,7 +81,7 @@ function tmpsurface_get( tmpsurface, x, y )
 	return tmpsurface[x][y]
 end
 
-function do_nicefill( game, surface_index, item_name, tiles )
+function do_nicefill( surface_index, item_name, tiles )
 	evtsurface = game.get_surface(surface_index);
 	evtsurfacename = evtsurface.name;
 	nicename = "NiceFill_" .. evtsurfacename;
@@ -312,7 +312,7 @@ script.on_event(defines.events.on_robot_built_tile,
 			log( serpent.block( event ) )
 		end
 
-		if not pcall(do_nicefill, game, event.surface_index, event.item.name, event.tiles ) then
+		if not pcall(do_nicefill, event.surface_index, event.item.name, event.tiles ) then
 			log( "NiceFill failed." )
 			debug_print( "NiceFill failed." );
 		end
@@ -326,7 +326,7 @@ script.on_event(defines.events.on_player_built_tile,
 			log( serpent.block( event ) )
 		end
 
-		if not pcall(do_nicefill, game, event.surface_index, event.item.name, event.tiles ) then
+		if not pcall(do_nicefill, event.surface_index, event.item.name, event.tiles ) then
 			log( "NiceFill failed." )
 			debug_print( "NiceFill failed." );
 		end
@@ -343,7 +343,7 @@ script.on_event(defines.events.script_raised_set_tiles,
 		if not event.tiles or not event.tiles[1] then return end
 
 
-		if not pcall(do_nicefill, game, event.surface_index, event.tiles[1].name, event.tiles ) then
+		if not pcall(do_nicefill, event.surface_index, event.tiles[1].name, event.tiles ) then
 			log( "NiceFill failed." )
 		end
 	end
