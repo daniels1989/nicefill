@@ -317,69 +317,25 @@ script.on_init(
 
 script.on_event(defines.events.on_robot_built_tile,
 	function(event)
-		if DEBUG then log( serpent.block( event ) ) end
-		if DEBUG then log( serpent.block( event.robot ) ) end
+		debug_log( "NiceFill on_robot_built_tile" )
+		debug_log( serpent.block( event ) )
 
-		--log("robot" .. serpent.block(event));
-		--log( serpent.block( event.item.name ) )
-
-		local sfcindex={}
-		for k,v in pairs(game.surfaces) do
-		   sfcindex[v.name]=k
-		end
-
-		--log( serpent.block(event) )
-
-		if event.robot.name == "character" and event.robot.valid == false then
-			--CM
-			if event.player_index ~= nil then
-				event.surface_index = sfcindex[game.players[event.player_index].surface.name]
-				--log("CM")
-				if event.item.name == "grass-1" then
-					event.item = game.item_prototypes["landfill"]
-				end
-			else
-				log("Unable to process the event" .. serpent.block(event))
-				force_debug("Unable to process the event" .. serpent.block(event))
-			end
-		else
-			event.surface_index = sfcindex[event.robot.surface.name]
-		end
-
-		if not pcall(do_nicefill, game, event ) then
+		if not pcall(do_nicefill, game, event.surface_index, event.item.name, event.tiles ) then
 			log( "NiceFill failed." )
 			print_force( "NiceFill failed." );
 		end
-
-		--do_nicefill(game, event)
-
-		--log( serpent.block( sfcindex[event.robot.surface.name] ) )
-		--do_nicefill( game, event )
-
 	end
 )
 
 script.on_event(defines.events.on_player_built_tile,
 	function(event)
-		if DEBUG then log( "NiceFill on_player_built_tile" ) end
-		if DEBUG then log( serpent.block(event) ) end
+		debug_log( "NiceFill on_player_built_tile" )
+		debug_log( serpent.block(event) )
 
-		--force_debug("character");
-
-		local sfcindex={}
-		for k,v in pairs(game.surfaces) do
-		   sfcindex[v.name]=k
-		end
-
-		event.surface_index = sfcindex[game.players[event.player_index].surface.name]
-
-		if not pcall(do_nicefill, game, event ) then
+		if not pcall(do_nicefill, game, event, event.surface_index, event.item.name, event.tiles ) then
 			log( "NiceFill failed." )
 			print_force( "NiceFill failed." );
 		end
-
-		--log( serpent.block( sfcindex[game.players[event.player_index].surface.name] ) )
-		--do_nicefill( game, event )
 	end
 )
 
@@ -390,9 +346,7 @@ script.on_event(defines.events.script_raised_set_tiles,
 		debug_log( "NiceFill script_raised_set_tiles" )
 		debug_log( serpent.block(event) )
 
-		event.item = game.item_prototypes[event.tiles[1].name]
-
-		if not pcall(do_nicefill, game, event ) then
+		if not pcall(do_nicefill, game, event, event.surface_index, event.tiles[1].name, event.tiles ) then
 			log( "NiceFill failed." )
 		end
 	end
