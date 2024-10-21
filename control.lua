@@ -127,6 +127,8 @@ function do_nicefill( surface_index, item_name, tiles )
 		local map_gen_settings = evtsurface.map_gen_settings
 
 		if DEBUG then
+			log( serpent.block( map_gen_settings ) )
+
 			for k,v in pairs(map_gen_settings.autoplace_controls) do
 				log(k .. ": " .. serpent.block(v))
 			end
@@ -137,41 +139,28 @@ function do_nicefill( surface_index, item_name, tiles )
 
 		map_gen_settings.autoplace_controls["enemy-base"] = { frequency="none", size="none", richness="none" }
 		map_gen_settings.autoplace_controls["trees"] = { frequency="none", size="none", richness="none" }
-		-- map_gen_settings.default_enable_all_autoplace_controls = false
-		map_gen_settings.autoplace_settings =
-		{
-			entity =
-			{
-				treat_missing_as_default = false,
-				settings =
-				{
-					frequency = "none",
-					size = "none",
-					richness = "none"
-				}
-			},
-			decorative =
-			{
-				treat_missing_as_default = false,
-				settings =
-				{
-					frequency = "none",
-					size = "none",
-					richness="none"
-				}
-			}
-		}
+		map_gen_settings.autoplace_controls["water"] = { frequency="none", size="none", richness="none" }
 
-		map_gen_settings.water = "none"
+		for name, _ in pairs(map_gen_settings.autoplace_settings.entity) do
+			map_gen_settings.autoplace_settings.entity.settings[name] = { frequency="none", size="none", richness="none" }
+		end
+
+		for name, _ in pairs(map_gen_settings.autoplace_settings.decorative) do
+			map_gen_settings.autoplace_settings.entity.settings[name] = { frequency="none", size="none", richness="none" }
+		end
+
+		for name, _ in pairs(map_gen_settings.autoplace_settings.tile) do
+			if name:find("water") then
+				map_gen_settings.autoplace_settings.entity.settings[name] = { frequency="none", size="none", richness="none" }
+			end
+		end
+
 		map_gen_settings.starting_area = "none"
 		map_gen_settings.starting_points = {}
 		map_gen_settings.peaceful_mode = true
 
-		map_gen_settings.cliff_settings = {
-			cliff_elevation_0 = 0,
-			cliff_elevation_interval = 0,
-			name = "cliff"
-		}
+		map_gen_settings.cliff_settings.cliff_elevation_0 = 0
+		map_gen_settings.cliff_settings.cliff_elevation_interval = 0
 
 		-- THANKS slippycheeze :)
 		-- (I think this can be generated when control.lua is loaded safely, but i did it in the nicefill function)
@@ -224,6 +213,9 @@ function do_nicefill( surface_index, item_name, tiles )
 		NiceFillSurface.force_generate_chunk_requests()
 
 		local NFSTile = NiceFillSurface.get_tile( tile.position.x, tile.position.y )
+
+		debug_print(NFSTile.name)
+		if DEBUG then log(NFSTile.name) end
 
 		if string.match(NFSTile.name, "water") ~= nil then
 			log( "NiceFill failed to get correct texture. Default will be used at x:" .. tile.position.x .. " y:" .. tile.position.y .. " failing source texture is: " .. NFSTile.name )
