@@ -213,20 +213,19 @@ function do_nicefill( surface_index, item_name, tiles )
 
 	local tilelist = {}	--this list is temporary, it contains tiles that has been landfilled, and we remove ready tiles from it each round.
 
-	--build teporary list of landfilled tiles
-	for k,vv in pairs(tiles) do
-		local v = vv.position -- quick fix for 0.16.17
+	--build temporary list of landfilled tiles
+	for _, tile in pairs(tiles) do
 
-		if not NiceFillSurface.is_chunk_generated( { x=(v.x / 32), y=(v.y / 32) } ) then
-			NiceFillSurface.request_to_generate_chunks( { x=v.x, y=v.y }, 0 )
+		if not NiceFillSurface.is_chunk_generated( { x=(tile.position.x / 32), y=(tile.position.y / 32) } ) then
+			NiceFillSurface.request_to_generate_chunks( { x=tile.position.x, y=tile.position.y }, 0 )
 		end
 
 		NiceFillSurface.force_generate_chunk_requests()
 
-		local NFSTile = NiceFillSurface.get_tile( { x=v.x, y=v.y } )
+		local NFSTile = NiceFillSurface.get_tile( tile.position.x, tile.position.y )
 
 		if string.match(NFSTile.name, "water") ~= nil then
-			log( "NiceFill failed to get correct texture. Default will be used at x:" .. v.x .. " y:" .. v.y .. " failing source texture is: " .. NFSTile.name )
+			log( "NiceFill failed to get correct texture. Default will be used at x:" .. tile.position.x .. " y:" .. tile.position.y .. " failing source texture is: " .. NFSTile.name )
 		else
 			table.insert( tilelist, {name=NFSTile.name, position = NFSTile.position } )
 		end
@@ -239,18 +238,17 @@ function do_nicefill( surface_index, item_name, tiles )
 
 		--local tileghosts = {}
 
-		for k,vv in pairs(tiles) do
-			local v = vv.position
+		for _, tile in pairs(tiles) do
 
-			--log( serpent.block ( evtsurface.get_tile({x=v.x-1,y=v.y}).name ) )
+			--log( serpent.block ( evtsurface.get_tile({x=tile.position.x-1, y=tile.position.y}).name ) )
 			if DEBUG then log( "---WB BEGIN" ) end
 
 			for i = -2,2 do
 				for j = -2,2 do
-					temp_position = { x=(v.x + j), y=(v.y + i) }
+					temp_position = { x=(tile.position.x + j), y=(tile.position.y + i) }
 
-					if evtsurface.get_tile(temp_position).name == "deepwater" then
-						local temp_tile = evtsurface.get_tile(temp_position)
+					if evtsurface.get_tile(temp_position.x, temp_position.y).name == "deepwater" then
+						local temp_tile = evtsurface.get_tile(temp_position.x, temp_position.y)
 						if DEBUG then log( serpent.block( temp_tile ) ) end
 
 						--log( serpent.block( evtsurface.find_entities_filtered{position = temp_position, radius = 1} ) )
