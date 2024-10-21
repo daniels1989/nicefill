@@ -1,0 +1,83 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.1.21
+Date: 27. 06. 2023
+  Features:
+    - Fixed script_raised_set_tiles handler if event doesn't contain tiles.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.20
+Date: 02. 05. 2021
+  Features:
+    - Added support for script_raised_set_tiles
+---------------------------------------------------------------------------------------------------
+Version: 0.1.19
+Date: 28. 11. 2020
+  Features:
+    - Updated for 1.1
+---------------------------------------------------------------------------------------------------
+Version: 0.1.18
+Date: 16. 08. 2020
+  Features:
+    - 1.0 !!!
+---------------------------------------------------------------------------------------------------
+Version: 0.1.17
+Date: 23. 01. 2020
+  Features:
+    - Updated for 0.18.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.16
+Date: 08. 07. 2019
+  Bugfixes:
+    - Added slippycheeze's fix for stubborn water.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.15
+Date: 07. 07. 2019
+  Bugfixes:
+    - Changed how NF handles mod conflicts. Whenever NF fails to get the correct texture, default will be used. This should "solve" the problem, where water is being replaced by water, when a mod forces water on all surfaces.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.14
+Date: 15. 05. 2019
+  Bugfixes:
+    - Improved RSO compatibility.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.13
+Date: 03. 05. 2019
+  Bugfixes:
+    - Fixed water blending with bots.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.12
+Date: 03. 05. 2019
+  Bugfixes:
+    - Fixed for 0.17.35 changes.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.11
+Date: 02. 02. 2019
+  Bugfixes:
+    - Some fixes for Creative Mode.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.10
+Date: 27. 02. 2019
+  Bugfixes:
+    - Implemented workaround for the starting area water problem.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.9
+Date: 26. 02. 2019
+  Features:
+    - Updated for 0.17. WARNING currently due to a bug in Factorio 0.17, does not work in the starting area.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.8
+Date: 15. 10. 2018
+  Bugfixes:
+    - Fixed some debuging leftovers.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.7
+Date: 07. 10. 2018
+  Bugfixes:
+    - Fixed missing surface_index for bots and Nanobots.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.6
+Date: 06. 10. 2018
+  Features:
+    - Added water blending. The edge of the landfilled aread facing the water will now rise the water level from deep water to water, resulting in a nice beach like gradient instead of the steep shore into deep water as before. Can be disabled in the game settings.
+    - Added preliminary support for multiple surfaces.
+  Bugfixes:
+    - Disabled some unnecessary logging.
