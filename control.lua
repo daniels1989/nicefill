@@ -175,11 +175,12 @@ function do_nicefill( surface_index, item_name, tiles )
 
 		-- THANKS slippycheeze :)
 		-- (I think this can be generated when control.lua is loaded safely, but i did it in the nicefill function)
-		for name, _ in pairs(game.tile_prototypes) do
-			if name:find("water") then
-				map_gen_settings.property_expression_names["tile:"..name..":probability"] = -1000
-			end
-		end
+		-- No longer possible, tile_prototypes have been removed from LuaGameScript
+		-- for name, _ in pairs(game.tile_prototypes) do
+		-- 	if name:find("water") then
+		-- 		map_gen_settings.property_expression_names["tile:"..name..":probability"] = -1000
+		-- 	end
+		-- end
 
 		if DEBUG then log( serpent.block( map_gen_settings ) ) end
 
