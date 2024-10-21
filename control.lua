@@ -141,8 +141,8 @@ function do_nicefill( game, surface_index, item_name, tiles )
 				debug_log( serpent.block( v ) )
 			end
 
-			map_gen_settings.autoplace_controls["enemy-base"] = {frequency="none",size="none",richness="none"}
-			map_gen_settings.autoplace_controls["trees"] = {frequency="none",size="none",richness="none"}
+			map_gen_settings.autoplace_controls["enemy-base"] = { frequency="none", size="none", richness="none" }
+			map_gen_settings.autoplace_controls["trees"] = { frequency="none", size="none", richness="none" }
 			-- map_gen_settings.default_enable_all_autoplace_controls = false
 			map_gen_settings.autoplace_settings =
 			{
@@ -167,8 +167,6 @@ function do_nicefill( game, surface_index, item_name, tiles )
 					}
 				}
 			}
-
-
 
 			debug_log( serpent.block( map_gen_settings.cliff_settings ) )
 			debug_log( serpent.block( map_gen_settings.autoplace_settings ) )
@@ -227,13 +225,13 @@ function do_nicefill( game, surface_index, item_name, tiles )
 		for k,vv in pairs(tiles) do
 			local v = vv.position -- quick fix for 0.16.17
 
-			if not NiceFillSurface.is_chunk_generated( {x=(v.x/32),y=(v.y/32)} ) then
-				NiceFillSurface.request_to_generate_chunks( {x=v.x,y=v.y}, 0 )
+			if not NiceFillSurface.is_chunk_generated( { x=(v.x / 32), y=(v.y / 32) } ) then
+				NiceFillSurface.request_to_generate_chunks( { x=v.x, y=v.y }, 0 )
 			end
 
 			NiceFillSurface.force_generate_chunk_requests()
 
-			local NFSTile = NiceFillSurface.get_tile( {x=v.x,y=v.y} )
+			local NFSTile = NiceFillSurface.get_tile( { x=v.x, y=v.y } )
 
 			if string.match(NFSTile.name, "water") ~= nil then
 				log( "NiceFill failed to get correct texture. Default will be used at x:" .. v.x .. " y:" .. v.y .. " failing source texture is: " .. NFSTile.name )
