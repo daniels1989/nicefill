@@ -13,13 +13,14 @@ function print_force(message, ...)
     end
 
 	game.player.force.print(string.format(message, table.unpack(args, 1, args.n)))
-	end
 end
 
-function force_debug( msg )
-	for _, character in pairs(game.players) do
-		character.print( msg )
-	end
+function debug_log(message)
+	if not DEBUG then
+        return
+    end
+
+	log(message)
 end
 
 function string.starts(String,Start)
@@ -112,7 +113,7 @@ function do_nicefill( game, event )
 	--log( serpent.block( nicename ) )
 
 	if event.item.name == 'landfill' then
-		if DEBUG then log( "NiceFill on landfill" ) end
+		debug_log( "NiceFill on landfill" )
 
 		--delete NiceFill surface, we are no longer using it
 		if game.surfaces["NiceFill"] ~= nil then
@@ -127,7 +128,7 @@ function do_nicefill( game, event )
 
 			game.surfaces[nicename].force_generate_chunk_requests()
 
-			if DEBUG then log(serpent.block( game.surfaces[nicename].get_tile( event.tiles[1].position ).name )) end
+			debug_log(serpent.block( game.surfaces[nicename].get_tile( tiles[1].position ).name ))
 
 			if string.match(game.surfaces[nicename].get_tile( event.tiles[1].position ).name, "water") ~= nil then
 				-- fix incorrect surface
@@ -139,7 +140,8 @@ function do_nicefill( game, event )
 		if game.surfaces[nicename] == nil
 		then
 			print_force( serpent.dump( game.surfaces ) )
-			if DEBUG then log( serpent.dump( game.surfaces ) ) end
+			debug_log( serpent.dump( game.surfaces ) )
+
 			-- make a copy of the world, without water.
 
 			local map_gen_settings = evtsurface.map_gen_settings
@@ -148,8 +150,8 @@ function do_nicefill( game, event )
 			--map_gen_settings.autoplace_controls = {}
 
 			for k,v in pairs(map_gen_settings.autoplace_controls) do
-				if DEBUG then log( serpent.block( k ) ) end
-				if DEBUG then log( serpent.block( v ) ) end
+				debug_log( serpent.block( k ) )
+				debug_log( serpent.block( v ) )
 			end
 
 			map_gen_settings.autoplace_controls["enemy-base"] = {frequency="none",size="none",richness="none"}
@@ -181,10 +183,8 @@ function do_nicefill( game, event )
 
 
 
-			if DEBUG then
-				log( serpent.block( map_gen_settings.cliff_settings ) )
-				log( serpent.block( map_gen_settings.autoplace_settings ) )
-			end
+			debug_log( serpent.block( map_gen_settings.cliff_settings ) )
+			debug_log( serpent.block( map_gen_settings.autoplace_settings ) )
 
 			map_gen_settings.water = "none"
 			map_gen_settings.starting_area = "none"
@@ -214,29 +214,27 @@ function do_nicefill( game, event )
 			if pcall( game.create_surface,nicename, map_gen_settings ) then
 				if remote.interfaces["RSO"] then -- RSO compatibility
 					if pcall(remote.call, "RSO", "ignoreSurface", nicename) then
-						if DEBUG then log( "NiceFill surface registered with RSO." ) end
+						debug_log( "NiceFill surface registered with RSO." )
 					else
 						log( "NiceFill surface failed to register with RSO" )
-						force_debug( "NiceFill failed to register surface with RSO" )
+						print_force( "NiceFill failed to register surface with RSO" )
 					end
 				end
-				if DEBUG then log( "NiceFill surface success." ) end
+				debug_log( "NiceFill surface success." )
 			else
 				log( "NiceFill surface fail." )
 				print_force( "NiceFill failed create surface. Did you disable or enable any mods mid-game ?" );
 			end
 
-
 			NiceFillSurface = game.surfaces[nicename]
 
-			--character.force.print( serpent.block( map_gen_settings ) )
-			if DEBUG then log( serpent.block( evtsurface.map_gen_settings ) ) end
-			if DEBUG then log( serpent.block( game.surfaces[nicename].map_gen_settings ) ) end
+			debug_log( serpent.block( evtsurface.map_gen_settings ) )
+			debug_log( serpent.block( game.surfaces[nicename].map_gen_settings ) )
 		else
 			NiceFillSurface = game.surfaces[nicename]
 		end
 
-		local tilelist = {}				--this list is temporary, it contains tiles that has been landfilled, and we remove ready tiles from it each round.
+		local tilelist = {}	--this list is temporary, it contains tiles that has been landfilled, and we remove ready tiles from it each round.
 
 		--build teporary list of landfilled tiles
 		for k,vv in pairs(event.tiles) do
@@ -269,7 +267,8 @@ function do_nicefill( game, event )
 				local v = vv.position
 
 				--log( serpent.block ( evtsurface.get_tile({x=v.x-1,y=v.y}).name ) )
-				if DEBUG then log( "---WB BEGIN" ) end
+				debug_log( "---WB BEGIN" )
+
 				for i = -2,2 do
 					for j = -2,2 do
 						tmppos = {x=(v.x+j),y=(v.y+i)}
@@ -305,7 +304,7 @@ function do_nicefill( game, event )
 						end
 					end
 				end
-				if DEBUG then log( "---WB END" ) end
+				debug_log( "---WB END" )
 			end
 
 			evtsurface.set_tiles( waterblend_tilelist )
@@ -402,8 +401,8 @@ script.on_event(defines.events.script_raised_set_tiles,
 	function(event)
 		if not event.tiles or not event.tiles[1] then return end
 
-		if DEBUG then log( "NiceFill script_raised_set_tiles" ) end
-		if DEBUG then log( serpent.block(event) ) end
+		debug_log( "NiceFill script_raised_set_tiles" )
+		debug_log( serpent.block(event) )
 
 		event.item = game.item_prototypes[event.tiles[1].name]
 
