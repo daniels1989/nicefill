@@ -323,7 +323,7 @@ script.on_event(defines.events.on_player_built_tile,
 		debug_log( "NiceFill on_player_built_tile" )
 		debug_log( serpent.block(event) )
 
-		if not pcall(do_nicefill, game, event, event.surface_index, event.item.name, event.tiles ) then
+		if not pcall(do_nicefill, game, event.surface_index, event.item.name, event.tiles ) then
 			log( "NiceFill failed." )
 			debug_print( "NiceFill failed." );
 		end
@@ -337,7 +337,7 @@ script.on_event(defines.events.script_raised_set_tiles,
 		debug_log( "NiceFill script_raised_set_tiles" )
 		debug_log( serpent.block(event) )
 
-		if not pcall(do_nicefill, game, event, event.surface_index, event.tiles[1].name, event.tiles ) then
+		if not pcall(do_nicefill, game, event.surface_index, event.tiles[1].name, event.tiles ) then
 			log( "NiceFill failed." )
 		end
 	end
