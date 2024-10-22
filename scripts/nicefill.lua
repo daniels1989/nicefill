@@ -102,16 +102,6 @@ function NiceFill.create_surface_from(surface)
 	end
 
 	if DEBUG then log( "NiceFill surface success." ) end
-
-	-- TODO move to create surface event
-	if remote.interfaces["RSO"] then -- RSO compatibility
-		if pcall(remote.call, "RSO", "ignoreSurface", nicefill_surface_name) then
-			if DEBUG then log( "NiceFill surface registered with RSO." ) end
-		else
-			log( "NiceFill surface failed to register with RSO" )
-			debug.print( "NiceFill failed to register surface with RSO" )
-		end
-	end
 end
 
 ---@param surface LuaSurface

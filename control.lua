@@ -117,6 +117,30 @@ script.on_event(defines.events.on_chunk_generated,
 	end
 )
 
+script.on_event(defines.events.on_surface_created,
+	function(event)
+		local surface = game.get_surface(event.surface_index)
+
+		if surface == nil then
+			log( "NiceFill on_surface_created found no surface." )
+			return
+		end
+
+		if not NiceFill.is_nicefill_surface(surface) then return end
+
+		debug.print('NiceFill created surface ' .. surface.name)
+
+		if remote.interfaces["RSO"] then -- RSO compatibility
+			if pcall(remote.call, "RSO", "ignoreSurface", surface) then
+				if DEBUG then log( "NiceFill surface registered with RSO." ) end
+			else
+				log( "NiceFill surface failed to register with RSO" )
+				debug.print( "NiceFill failed to register surface with RSO" )
+			end
+		end
+	end
+)
+
 if DEBUG then
 	-- /c remote.call("NiceFill", "spawn_tiles")
 	remote.add_interface("NiceFill", {
