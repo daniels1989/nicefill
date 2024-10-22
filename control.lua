@@ -57,15 +57,6 @@ function do_nicefill( surface_index, tiles )
 	surface.set_tiles( nice_tiles )
 end
 
-script.on_init(
-	function()
-		debug.print("Nicefill INIT.")
-		if script.active_mods["FARL"] then
-			remote.call("farl", "add_entity_to_trigger", "grass-1")
-		end
-	end
-)
-
 script.on_event(defines.events.on_robot_built_tile,
 	function(event)
 		if DEBUG then
