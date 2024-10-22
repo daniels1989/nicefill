@@ -6,7 +6,7 @@ NiceFill.replaceable_tiles = {
 }
 
 if(script.active_mods['space-age']) then
-	merge(NiceFill.replaceable_tiles, {
+	table_merge(NiceFill.replaceable_tiles, {
 		"water-mud", "water-shallow", --nauvis, added in base but can't be landfilled without Space Age?
 
 		-- gleba
@@ -43,7 +43,7 @@ function NiceFill.create_surface_from(surface)
 
 	-- Disable autoplace controls
 	for name, _ in pairs(map_gen_settings.autoplace_controls) do
-		if has_value(autoplace_controls, name) then
+		if table_contains(autoplace_controls, name) then
 			map_gen_settings.autoplace_controls[name] = autoplace_none
 		end
 	end
@@ -60,7 +60,7 @@ function NiceFill.create_surface_from(surface)
 
 	-- Disable placement of replaceable tiles
 	for name, _ in pairs(map_gen_settings.autoplace_settings.tile) do
-		if has_value(NiceFill.replaceable_tiles, name) then
+		if table_contains(NiceFill.replaceable_tiles, name) then
 			map_gen_settings.autoplace_settings.tile.settings[name] = autoplace_none
 		end
 	end

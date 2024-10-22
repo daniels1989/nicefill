@@ -30,7 +30,7 @@ end
 
 ---@param table table
 ---@return boolean
-function has_value(table, needle)
+function table_contains(table, needle)
 	for _, value in ipairs(table) do
         if value == needle then
             return true
@@ -42,7 +42,7 @@ end
 
 ---@param table1 table
 ---@param table2 table
-function merge(table1, table2)
+function table_merge(table1, table2)
 	for _, value in pairs(table2) do
 		table.insert(table1, value)
 	end
