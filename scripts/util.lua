@@ -61,7 +61,7 @@ function convert_old_tile_and_position(tile, old_tiles)
 	local tiles = {}
 
 	for _, old_tile in pairs(old_tiles) do
-		table.insert(tiles, {tile = tile.name, position = old_tile.position})
+		table.insert(tiles, {name = tile.name, position = old_tile.position})
 	end
 
 	return tiles
