@@ -48,67 +48,14 @@ function do_nicefill( surface_index, item_name, tiles )
 		return
 	end
 
-	local nice_tiles = NiceFill.get_tiles(NiceFillSurface, tiles)
+	local nice_tiles = NiceFill.get_nice_tiles(NiceFillSurface, tiles)
 
 	if settings.global["nicefill-dowaterblending"].value == true then
-		local waterblend_tilelist = {}
-
-		--local tileghosts = {}
-
-		for _, tile in pairs(tiles) do
-
-			--log( serpent.block ( evtsurface.get_tile({x=tile.position.x-1, y=tile.position.y}).name ) )
-			if DEBUG then log( "---WB BEGIN" ) end
-
-			for i = -2,2 do
-				for j = -2,2 do
-					local temp_position = { x=(tile.position.x + j), y=(tile.position.y + i) }
-
-					if surface.get_tile(temp_position.x, temp_position.y).name == "deepwater" then
-						local temp_tile = surface.get_tile(temp_position.x, temp_position.y)
-						if DEBUG then log( serpent.block( temp_tile ) ) end
-
-						--log( serpent.block( evtsurface.find_entities_filtered{position = temp_position, radius = 1} ) )
-
-						local temp_tile_ghosts = surface.find_entities_filtered{position = temp_position, radius = 1, type="tile-ghost"}
-
-						local preserve_ghost = false
-
-						for _, temp_tile_ghost in pairs(temp_tile_ghosts) do
-							--log( "---WB TILE BEGIN" )
-							--log( serpent.block( temp_tile_ghost.ghost_type ) )
-							--log( serpent.block( temp_tile_ghost.ghost_name ) )
-							--log( serpent.block( temp_tile_ghost.position ) )
-							--log( serpent.block( temp_position ) )
-							--log( "---WB TILE END" )
-
-							preserve_ghost = true
-							--if temp_position.x == absfloor(temp_tile_ghost.position.x) and temp_position.y == absfloor(temp_tile_ghost.position.y) then
-							--	log("PRESERVE")
-							--end
-							--if temp_tile_ghost.ghost_name == "landfill" then
-							--	table.insert( tileghosts, temp_position )
-							--end
-						end
-
-						if preserve_ghost == false then
-							table.insert( waterblend_tilelist, { name="water", position = temp_position } )
-						end
-					end
-				end
-			end
-			if DEBUG then log( "---WB END" ) end
-		end
-
-		surface.set_tiles( waterblend_tilelist )
-
-		--for _, tile_ghost in pairs(tileghosts) do
-		--	evtsurface.create_entity( { name = "entity-ghost", inner_name = "landfill", position = tile_ghost } )
-		--end
-
+		local water_blending_tiles = NiceFill.get_water_blending_tiles(surface, tiles)
+		surface.set_tiles( water_blending_tiles )
 	end
 
-	surface.set_tiles( nice_tiles );
+	surface.set_tiles( nice_tiles )
 end
 
 script.on_init(

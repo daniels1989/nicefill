@@ -4,6 +4,10 @@ NiceFill.surface_prefix = "NiceFill_"
 NiceFill.replaceable_tiles = {
 	"water", "deepwater", "water-green", "deepwater-green", --nauvis
 }
+NiceFill.water_blending_mapping = {
+	["deepwater"] = "water",
+	["deepwater-green"] = "water-green",
+}
 
 if(script.active_mods['space-age']) then
 	table_merge(NiceFill.replaceable_tiles, {
@@ -22,6 +26,10 @@ if(script.active_mods['space-age']) then
 		"gleba-deep-lake",
 
 		--aquilo, fulgora and vulcanus cannot be landfilled
+	})
+
+	table_merge_keys(NiceFill.water_blending_mapping, {
+		["gleba-deep-lake"] = "wetland-blue-slime",
 	})
 end
 
@@ -145,7 +153,7 @@ end
 function NiceFill.get_nice_tile(surface, tile)
 	local nice_tile = surface.get_tile( tile.position.x, tile.position.y )
 
-	if DEBUG then log(serpent.block( nice_tile )) end
+	if DEBUG then log( "NiceFill nice tile: " .. nice_tile.name ) end
 
 	if(not table_contains(NiceFill.replaceable_tiles, nice_tile.name)) then
 		return { name = nice_tile.name, position = nice_tile.position }
@@ -161,8 +169,9 @@ function NiceFill.get_nice_tile(surface, tile)
 end
 
 ---@param surface LuaSurface
+---@param tiles Tile[]
 ---@return Tile[]
-function NiceFill.get_tiles(surface, tiles)
+function NiceFill.get_nice_tiles(surface, tiles)
 	NiceFill.generate_chunks(surface, tiles)
 
 	---@type Tile[]
@@ -177,6 +186,58 @@ function NiceFill.get_tiles(surface, tiles)
 	end
 
 	return nice_tiles
+end
+
+---@param surface LuaSurface
+---@param tiles Tile[]
+---@return Tile[]
+function NiceFill.get_water_blending_tiles(surface, tiles)
+	---@type Tile[]
+	local water_blending_tiles = {}
+
+	if DEBUG then log(NiceFill.water_blending_mapping) end
+
+	for _, tile in pairs(tiles) do
+		if DEBUG then log(string.format('---Water blending start %d, %d', tile.position.x, tile.position.y)) end
+
+		for y = -2,2 do
+			for x = -2,2 do
+				---@type MapPosition
+				local temp_position = { x = (tile.position.x + x), y = (tile.position.y + y) }
+
+				---@type LuaTile
+				local temp_tile = surface.get_tile(temp_position.x, temp_position.y)
+
+				if DEBUG then log(string.format('%s at %d, %d', temp_tile.name, x, y)) end
+
+				if table_key_exists(NiceFill.water_blending_mapping, temp_tile.name) then
+					---@type LuaEntity[]
+					local temp_tile_ghosts = surface.find_entities_filtered{ position = temp_position, radius = 1, type="tile-ghost" }
+
+					if DEBUG then
+						log(string.format(
+							'Replacing %s with %s at %d, $d',
+							temp_tile.name,
+							NiceFill.water_blending_mapping[temp_tile.name],
+							temp_position.x,
+							temp_position.y
+						))
+					end
+
+					if #temp_tile_ghosts == 0 then
+						table.insert( water_blending_tiles, {
+							name = NiceFill.water_blending_mapping[temp_tile.name],
+							position = temp_position
+						} )
+					end
+				end
+			end
+		end
+
+		if DEBUG then log('---Water blending end') end
+	end
+
+	return water_blending_tiles
 end
 
 ---@param surface LuaSurface?
