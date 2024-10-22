@@ -5,128 +5,47 @@ debug = require('scripts.debug')
 
 NiceFill = require('scripts.nicefill')
 
-
+---@param surface_index integer
+---@param item_name string
+---@param tiles Tile[]
 function do_nicefill( surface_index, item_name, tiles )
-	evtsurface = game.get_surface(surface_index);
-	if(evtsurface == nil) then return end
+	surface = game.get_surface(surface_index);
 
-	nicename = NiceFill.get_surface_name(evtsurface)
+	if(surface == nil) then
+		log(string.format('Unable to get a surface with index %d', surface_index))
+		return
+	end
 
-	if DEBUG then log( "NiceFill on landfill" ) end
-	debug.print("Nicefill item : " .. serpent.block( item_name ) )
-
-	if item_name ~= 'landfill' then return end
-
-	--delete legacy surfaces, we are no longer using it
+	-- delete legacy surfaces, we are no longer using them
 	NiceFill.delete_legacy_surfaces()
 
-	NiceFillSurface = game.get_surface(nicename)
+	-- if DEBUG then log( "NiceFill on landfill" ) end
+	-- debug.print("Nicefill item : " .. serpent.block( item_name ) )
 
-	if NiceFillSurface ~= nil and tiles ~= nil and tiles[1] ~= nil then
-		if not NiceFillSurface.is_chunk_generated( { x=(tiles[1].position.x/32), y=(tiles[1].position.y/32) } ) then
-			NiceFillSurface.request_to_generate_chunks( { x=tiles[1].position.x, y=tiles[1].position.y }, 0 )
-		end
+	-- if item_name ~= 'landfill' then return end
 
-		NiceFillSurface.force_generate_chunk_requests()
 
-		if DEBUG then log(serpent.block( NiceFillSurface.get_tile( tiles[1].position.x, tiles[1].position.y ).name )) end
+	-- Try to get the NiceFill surface for this surface
+	NiceFillSurface = NiceFill.get_surface_from(surface)
 
-		if string.match(NiceFillSurface.get_tile( tiles[1].position.x, tiles[1].position.y ).name, "water") ~= nil then
-			-- fix incorrect surface
-			log( "NiceFill surface regenerate" )
-			game.delete_surface( nicename )
-		end
+	-- Validate the NiceFill surface
+	if(NiceFillSurface ~= nil and not NiceFill.validate_surface(NiceFillSurface, tiles)) then
+		-- Delete the surface if it's invalid
+		game.delete_surface(NiceFillSurface)
+		NiceFillSurface = NiceFill.get_surface_from(surface) -- Should be the same as NiceFillSurface = nil
 	end
 
-	NiceFillSurface = game.get_surface(nicename)
-
+	-- If there's no NiceFill surface at this point, try to create it
 	if NiceFillSurface == nil then
-		debug.print( "Creating Nicefill surface" )
-		if DEBUG then log( "Creating Nicefill surface" ) end
-
-		-- make a copy of the world, without water.
-
-		local map_gen_settings = evtsurface.map_gen_settings
-
-		if DEBUG then
-			log( serpent.block( map_gen_settings ) )
-
-			for k,v in pairs(map_gen_settings.autoplace_controls) do
-				log(k .. ": " .. serpent.block(v))
-			end
-
-			log( serpent.block( map_gen_settings.cliff_settings ) )
-			log( serpent.block( map_gen_settings.autoplace_settings ) )
-		end
-
-		--nauvis
-		map_gen_settings.autoplace_controls["enemy-base"] = { frequency="none", size="none", richness="none" }
-		map_gen_settings.autoplace_controls["trees"] = { frequency="none", size="none", richness="none" }
-		map_gen_settings.autoplace_controls["water"] = { frequency="none", size="none", richness="none" }
-
-		--gleba
-		map_gen_settings.autoplace_controls["gleba_enemy_base "] = { frequency="none", size="none", richness="none" }
-		map_gen_settings.autoplace_controls["gleba_plants"] = { frequency="none", size="none", richness="none" }
-		map_gen_settings.autoplace_controls["gleba_water"] = { frequency="none", size="none", richness="none" }
-
-		for name, _ in pairs(map_gen_settings.autoplace_settings.entity) do
-			map_gen_settings.autoplace_settings.entity.settings[name] = { frequency="none", size="none", richness="none" }
-		end
-
-		for name, _ in pairs(map_gen_settings.autoplace_settings.decorative) do
-			map_gen_settings.autoplace_settings.entity.settings[name] = { frequency="none", size="none", richness="none" }
-		end
-
-		for name, _ in pairs(map_gen_settings.autoplace_settings.tile) do
-			if name:find("water") then
-				map_gen_settings.autoplace_settings.entity.settings[name] = { frequency="none", size="none", richness="none" }
-			end
-		end
-
-		map_gen_settings.starting_area = "none"
-		map_gen_settings.starting_points = {}
-		map_gen_settings.peaceful_mode = true
-
-		map_gen_settings.cliff_settings.cliff_elevation_0 = 0
-		map_gen_settings.cliff_settings.cliff_elevation_interval = 0
-
-		-- THANKS slippycheeze :)
-		-- (I think this can be generated when control.lua is loaded safely, but i did it in the nicefill function)
-		-- No longer possible, tile_prototypes have been removed from LuaGameScript
-		-- for name, _ in pairs(game.tile_prototypes) do
-		-- 	if name:find("water") then
-		-- 		map_gen_settings.property_expression_names["tile:"..name..":probability"] = -1000
-		-- 	end
-		-- end
-
-		if DEBUG then log( serpent.block( map_gen_settings ) ) end
-
-		if pcall( game.create_surface,nicename, map_gen_settings ) then
-			if remote.interfaces["RSO"] then -- RSO compatibility
-				if pcall(remote.call, "RSO", "ignoreSurface", nicename) then
-					if DEBUG then log( "NiceFill surface registered with RSO." ) end
-				else
-					log( "NiceFill surface failed to register with RSO" )
-					debug.print( "NiceFill failed to register surface with RSO" )
-				end
-			end
-			if DEBUG then log( "NiceFill surface success." ) end
-		else
-			log( "NiceFill surface fail." )
-			debug.print( "NiceFill failed create surface. Did you disable or enable any mods mid-game ?" );
-		end
-
-		if DEBUG then
-			log( serpent.block( evtsurface.map_gen_settings ) )
-			log( serpent.block( game.surfaces[nicename].map_gen_settings ) )
-		end
+		NiceFill.create_surface_from(surface)
+		NiceFillSurface = NiceFill.get_surface_from(surface)
 	end
 
-	NiceFillSurface = game.get_surface(nicename)
-
 	if NiceFillSurface == nil then
-		log( "NiceFill surface fail." )
-		debug.print( "NiceFill failed." );
+		local message = string.format('NiceFill failed to get or create a NiceFill surface for "%s".', surface.name)
+		log( message )
+		debug.print( message );
+		return
 	end
 
 	local tilelist = {}	--this list is temporary, it contains tiles that has been landfilled, and we remove ready tiles from it each round.
@@ -168,13 +87,13 @@ function do_nicefill( surface_index, item_name, tiles )
 				for j = -2,2 do
 					temp_position = { x=(tile.position.x + j), y=(tile.position.y + i) }
 
-					if evtsurface.get_tile(temp_position.x, temp_position.y).name == "deepwater" then
-						local temp_tile = evtsurface.get_tile(temp_position.x, temp_position.y)
+					if surface.get_tile(temp_position.x, temp_position.y).name == "deepwater" then
+						local temp_tile = surface.get_tile(temp_position.x, temp_position.y)
 						if DEBUG then log( serpent.block( temp_tile ) ) end
 
 						--log( serpent.block( evtsurface.find_entities_filtered{position = temp_position, radius = 1} ) )
 
-						local temp_tile_ghosts = evtsurface.find_entities_filtered{position = temp_position, radius = 1, type="tile-ghost"}
+						local temp_tile_ghosts = surface.find_entities_filtered{position = temp_position, radius = 1, type="tile-ghost"}
 
 						local preserve_ghost = false
 
@@ -204,7 +123,7 @@ function do_nicefill( surface_index, item_name, tiles )
 			if DEBUG then log( "---WB END" ) end
 		end
 
-		evtsurface.set_tiles( waterblend_tilelist )
+		surface.set_tiles( waterblend_tilelist )
 
 		--for _, tile_ghost in pairs(tileghosts) do
 		--	evtsurface.create_entity( { name = "entity-ghost", inner_name = "landfill", position = tile_ghost } )
@@ -212,7 +131,7 @@ function do_nicefill( surface_index, item_name, tiles )
 
 	end
 
-	evtsurface.set_tiles( tilelist );
+	surface.set_tiles( tilelist );
 end
 
 script.on_init(
@@ -231,9 +150,9 @@ script.on_event(defines.events.on_robot_built_tile,
 			log( serpent.block( event ) )
 		end
 
-		log(serpent.block(event));
-		if true then return end
-		if not pcall(do_nicefill, event.surface_index, event.item.name, event.tiles ) then
+		local tiles = convert_old_tile_and_position(event.tile, event.tiles)
+
+		if not pcall(do_nicefill, event.surface_index, event.item.name, tiles ) then
 			log( "NiceFill failed." )
 			debug.print( "NiceFill failed." );
 		end
@@ -247,7 +166,9 @@ script.on_event(defines.events.on_player_built_tile,
 			log( serpent.block( event ) )
 		end
 
-		if not pcall(do_nicefill, event.surface_index, event.item.name, event.tiles ) then
+		local tiles = convert_old_tile_and_position(event.tile, event.tiles)
+
+		if not pcall(do_nicefill, event.surface_index, event.item.name, tiles ) then
 			log( "NiceFill failed." )
 			debug.print( "NiceFill failed." );
 		end
