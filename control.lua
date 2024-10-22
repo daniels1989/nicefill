@@ -111,7 +111,7 @@ script.on_event(defines.events.script_raised_set_tiles,
 
 script.on_event(defines.events.on_chunk_generated,
 	function(event)
-		if not NiceFill.is_nicefill_surface(event.surface) then
+		if NiceFill.is_nicefill_surface(event.surface) then
 			debug.print(serpent.block( event.area ) )
 		end
 	end
