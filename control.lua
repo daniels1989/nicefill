@@ -45,9 +45,11 @@ function do_nicefill( surface_index, tiles )
 		return
 	end
 
+	-- Get nicer tiles
 	local nice_tiles = NiceFill.get_nice_tiles(NiceFillSurface, tiles)
 
 	if settings.global["nicefill-dowaterblending"].value == true then
+		-- Get water blending tiles and set them first
 		local water_blending_tiles = NiceFill.get_water_blending_tiles(surface, tiles)
 		surface.set_tiles( water_blending_tiles )
 	end
