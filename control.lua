@@ -1,4 +1,4 @@
-DEBUG = true
+DEBUG = false
 
 require('scripts.util')
 debug = require('scripts.debug')
