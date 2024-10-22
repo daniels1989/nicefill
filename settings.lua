@@ -4,6 +4,6 @@ data:extend({
         name = "nicefill-dowaterblending",
         setting_type = "runtime-global",
         default_value = true,
-        order = 1
+        order = "a"
     }
 })
