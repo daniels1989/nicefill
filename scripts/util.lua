@@ -12,22 +12,6 @@ function string.ends(haystack, needle)
 	return string.sub(haystack, string.len(needle) * -1) == needle
 end
 
----@param x number
----@return number
-function math.absfloor(x)
-	if x > 0 then
-		return math.floor(x)
-	end
-
-	return math.ceil(x)
-end
-
----@param x number
----@return number
-function math.round(x)
-	return math.floor(x + 0.5)
-end
-
 ---@param table table
 ---@return boolean
 function table_contains(table, needle)
