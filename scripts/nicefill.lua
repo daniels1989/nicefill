@@ -264,6 +264,22 @@ function NiceFill.validate_surface(surface, tiles)
 	return true
 end
 
+---@param tiles Tile[]
+---@param tile_name string
+---@return Tile[]
+function NiceFill.filter_tiles(tiles, tile_name)
+	---@type Tile[]
+	local filtered = {}
+
+	for _, tile in pairs(tiles) do
+		if(tile.name == tile_name) then
+			table.insert( filtered, tile )
+		end
+	end
+
+	return filtered
+end
+
 function NiceFill.delete_legacy_surfaces()
 	local names = {"NiceFill"}
 
