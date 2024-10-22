@@ -49,17 +49,17 @@ function NiceFill.create_surface_from(surface)
 	end
 
 	-- Disable placement of entities
-	for name, _ in pairs(map_gen_settings.autoplace_settings.entity) do
+	for name, _ in pairs(map_gen_settings.autoplace_settings.entity.settings) do
 		map_gen_settings.autoplace_settings.entity.settings[name] = autoplace_none
 	end
 
 	-- Disable placement of decoratives
-	for name, _ in pairs(map_gen_settings.autoplace_settings.decorative) do
+	for name, _ in pairs(map_gen_settings.autoplace_settings.decorative.settings) do
 		map_gen_settings.autoplace_settings.decorative.settings[name] = autoplace_none
 	end
 
 	-- Disable placement of replaceable tiles
-	for name, _ in pairs(map_gen_settings.autoplace_settings.tile) do
+	for name, _ in pairs(map_gen_settings.autoplace_settings.tile.settings) do
 		if table_contains(NiceFill.replaceable_tiles, name) then
 			map_gen_settings.autoplace_settings.tile.settings[name] = autoplace_none
 		end
