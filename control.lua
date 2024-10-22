@@ -15,14 +15,11 @@ function do_nicefill( surface_index, tiles )
 		return
 	end
 
+	tiles = NiceFill.filter_tiles(tiles, 'landfill')
+	if #tiles == 0 then return end
+
 	-- delete legacy surfaces, we are no longer using them
 	NiceFill.delete_legacy_surfaces()
-
-	-- if DEBUG then log( "NiceFill on landfill" ) end
-	-- debug.print("Nicefill item : " .. serpent.block( item_name ) )
-
-	-- if item_name ~= 'landfill' then return end
-
 
 	-- Try to get the NiceFill surface for this surface
 	local NiceFillSurface = NiceFill.get_surface_from(surface)
