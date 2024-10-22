@@ -10,7 +10,7 @@ NiceFill = require('scripts.nicefill')
 function do_nicefill( surface_index, tiles )
 	local surface = game.get_surface(surface_index);
 
-	if(surface == nil) then
+	if surface == nil then
 		log(string.format('Unable to get a surface with index %d', surface_index))
 		return
 	end
@@ -26,7 +26,7 @@ function do_nicefill( surface_index, tiles )
 	local NiceFillSurface = NiceFill.get_surface_from(surface)
 
 	-- Validate the NiceFill surface
-	if(NiceFillSurface ~= nil and not NiceFill.validate_surface(NiceFillSurface, tiles)) then
+	if NiceFillSurface ~= nil and not NiceFill.validate_surface(NiceFillSurface, tiles) then
 		-- Delete the surface if it's invalid
 		game.delete_surface(NiceFillSurface)
 		NiceFillSurface = NiceFill.get_surface_from(surface) -- Should be the same as NiceFillSurface = nil
