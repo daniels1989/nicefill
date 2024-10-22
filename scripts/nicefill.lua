@@ -105,45 +105,6 @@ function NiceFill.create_surface_from(surface)
 end
 
 ---@param surface LuaSurface
----@param tiles Tile[]
-function NiceFill.generate_chunks(surface, tiles)
-	for _, tile in pairs(tiles) do
-		if not surface.is_chunk_generated( { x = (tile.position.x / 32), y = (tile.position.y / 32) } ) then
-			surface.request_to_generate_chunks( tile.position, 0 )
-		end
-	end
-
-	surface.force_generate_chunk_requests()
-end
-
----@param surface LuaSurface
----@return Tile[]
-function NiceFill.get_tiles(surface, tiles)
-	NiceFill.generate_chunks(surface, tiles)
-
-	---@type Tile[]
-	local nice_tiles = {}
-
-	for _, tile in pairs(tiles) do
-		local nice_tile = surface.get_tile( tile.position.x, tile.position.y )
-
-		if DEBUG then log(serpent.block( nice_tile )) end
-
-		if(has_value(NiceFill.replaceable_tiles, nice_tile.name)) then
-			log(string.format(
-				'NiceFill surface "%s" contains an invalid tile "%s" at position {%f, %f}',
-				surface.name,
-				nice_tile.name,
-				math.floor(tile.position.x),
-				math.floor(tile.position.y)
-			))
-		else
-			table.insert( nice_tiles, { name = nice_tile.name, position = nice_tile.position } )
-		end
-	end
-end
-
----@param surface LuaSurface
 ---@return LuaSurface?
 function NiceFill.get_surface_from(surface)
 	local nicefill_name = NiceFill.get_surface_name_from(surface)
@@ -166,6 +127,58 @@ function NiceFill.is_nicefill_surface(surface)
 	return string.starts(surface.name, NiceFill.surface_prefix)
 end
 
+---@param surface LuaSurface
+---@param tiles Tile[]
+function NiceFill.generate_chunks(surface, tiles)
+	for _, tile in pairs(tiles) do
+		if not surface.is_chunk_generated( { x = (tile.position.x / 32), y = (tile.position.y / 32) } ) then
+			surface.request_to_generate_chunks( tile.position, 0 )
+		end
+	end
+
+	surface.force_generate_chunk_requests()
+end
+
+---@param surface LuaSurface
+---@param tile Tile
+---@return Tile?
+function NiceFill.get_nice_tile(surface, tile)
+	local nice_tile = surface.get_tile( tile.position.x, tile.position.y )
+
+	if DEBUG then log(serpent.block( nice_tile )) end
+
+	if(not table_contains(NiceFill.replaceable_tiles, nice_tile.name)) then
+		return { name = nice_tile.name, position = nice_tile.position }
+	end
+
+	log(string.format(
+		'NiceFill surface "%s" contains an invalid tile "%s" at position {%f, %f}',
+		surface.name,
+		nice_tile.name,
+		math.floor(tile.position.x),
+		math.floor(tile.position.y)
+	))
+end
+
+---@param surface LuaSurface
+---@return Tile[]
+function NiceFill.get_tiles(surface, tiles)
+	NiceFill.generate_chunks(surface, tiles)
+
+	---@type Tile[]
+	local nice_tiles = {}
+
+	for _, tile in pairs(tiles) do
+		local nice_tile = NiceFill.get_nice_tile(surface, tile)
+
+		if(nice_tile ~= nil) then
+			table.insert( nice_tiles, nice_tile )
+		end
+	end
+
+	return nice_tiles
+end
+
 ---@param surface LuaSurface?
 ---@param tiles Tile[]
 ---@return boolean
@@ -180,19 +193,9 @@ function NiceFill.validate_surface(surface, tiles)
 	NiceFill.generate_chunks(surface, tiles)
 
 	for _, tile in pairs(tiles) do
-		local nice_tile = surface.get_tile( tile.position.x, tile.position.y )
+		local nice_tile = NiceFill.get_nice_tile(surface, tile)
 
-		if DEBUG then log(serpent.block( nice_tile )) end
-
-		if(has_value(NiceFill.replaceable_tiles, nice_tile.name)) then
-			log(string.format(
-				'NiceFill surface "%s" contains an invalid tile "%s" at position {%f, %f}',
-				surface.name,
-				nice_tile.name,
-				math.floor(tile.position.x),
-				math.floor(tile.position.y)
-			))
-
+		if(nice_tile == nil) then
 			return false
 		end
 	end
