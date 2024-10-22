@@ -37,8 +37,8 @@ function NiceFill.create_surface_from(surface)
 	local autoplace_none = { frequency = 0, size = 0, richness = 0 }
 
 	local autoplace_controls = {
-		"enemy-base", "trees", "water", --nauvis
-		"gleba_enemy_base", "gleba_plants", "gleba_water" -- gleba
+		"enemy-base", "trees", --nauvis
+		"gleba_enemy_base", "gleba_plants", -- gleba
 	}
 
 	-- Disable autoplace controls
