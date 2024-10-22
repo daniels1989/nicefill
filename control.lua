@@ -5,6 +5,11 @@ debug = require('scripts.debug')
 
 NiceFill = require('scripts.nicefill')
 
+-- For testing
+-- Unlock planets with /cheat planetname, e.g. /cheat gleba
+-- To hop between unlocked planets use /c game.player.teleport(game.player.position, "planetname")
+-- e.g. /c game.player.teleport(game.player.position, "gleba")
+
 ---@param surface_index integer
 ---@param tiles Tile[]
 function do_nicefill( surface_index, tiles )
