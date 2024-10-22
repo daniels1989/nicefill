@@ -3,23 +3,22 @@ DEBUG = true
 require('scripts.util')
 debug = require('scripts.debug')
 
+NiceFill = require('scripts.nicefill')
+
 
 function do_nicefill( surface_index, item_name, tiles )
 	evtsurface = game.get_surface(surface_index);
-	evtsurfacename = evtsurface.name;
-	nicename = "NiceFill_" .. evtsurfacename;
+	if(evtsurface == nil) then return end
+
+	nicename = NiceFill.get_surface_name(evtsurface)
 
 	if DEBUG then log( "NiceFill on landfill" ) end
 	debug.print("Nicefill item : " .. serpent.block( item_name ) )
 
-	if item_name ~= 'landfill' then
-		return
-	end
+	if item_name ~= 'landfill' then return end
 
-	--delete NiceFill surface, we are no longer using it
-	if game.get_surface("NiceFill") ~= nil then
-		game.delete_surface("NiceFill")
-	end
+	--delete legacy surfaces, we are no longer using it
+	NiceFill.delete_legacy_surfaces()
 
 	NiceFillSurface = game.get_surface(nicename)
 
