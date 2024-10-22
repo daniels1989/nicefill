@@ -6,9 +6,8 @@ debug = require('scripts.debug')
 NiceFill = require('scripts.nicefill')
 
 ---@param surface_index integer
----@param item_name string
 ---@param tiles Tile[]
-function do_nicefill( surface_index, item_name, tiles )
+function do_nicefill( surface_index, tiles )
 	local surface = game.get_surface(surface_index);
 
 	if(surface == nil) then
@@ -76,7 +75,7 @@ script.on_event(defines.events.on_robot_built_tile,
 
 		local tiles = convert_old_tile_and_position(event.tile, event.tiles)
 
-		if not pcall(do_nicefill, event.surface_index, event.item.name, tiles ) then
+		if not pcall(do_nicefill, event.surface_index, tiles ) then
 			log( "NiceFill failed." )
 			debug.print( "NiceFill failed." );
 		end
@@ -92,7 +91,7 @@ script.on_event(defines.events.on_player_built_tile,
 
 		local tiles = convert_old_tile_and_position(event.tile, event.tiles)
 
-		if not pcall(do_nicefill, event.surface_index, event.item.name, tiles ) then
+		if not pcall(do_nicefill, event.surface_index, tiles ) then
 			log( "NiceFill failed." )
 			debug.print( "NiceFill failed." );
 		end
@@ -111,7 +110,7 @@ script.on_event(defines.events.script_raised_set_tiles,
 		log(serpent.block(event));
 		if true then return end
 
-		if not pcall(do_nicefill, event.surface_index, event.tiles[1].name, event.tiles ) then
+		if not pcall(do_nicefill, event.surface_index, event.tiles ) then
 			log( "NiceFill failed." )
 		end
 	end
