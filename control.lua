@@ -1,4 +1,4 @@
-DEBUG = false
+DEBUG = true
 
 function debug_print(message, ...)
     if not DEBUG then
