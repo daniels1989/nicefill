@@ -26,6 +26,8 @@ if(script.active_mods['space-age']) then
 		"gleba-deep-lake",
 
 		--aquilo, fulgora and vulcanus cannot be landfilled
+		--aquilo uses ice-platform
+		--fulgora and vulcanus use foundation
 	})
 
 	table_merge_keys(NiceFill.water_blending_mapping, {

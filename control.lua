@@ -15,6 +15,7 @@ function do_nicefill( surface_index, tiles )
 		return
 	end
 
+	-- Todo support other tiles that only need waterblending e.g. aquilo/ice platforms
 	tiles = NiceFill.filter_tiles(tiles, 'landfill')
 	if #tiles == 0 then return end
 
@@ -104,9 +105,6 @@ script.on_event(defines.events.script_raised_set_tiles,
 
 		if not event.tiles or not event.tiles[1] then return end
 
-		log(serpent.block(event));
-		if true then return end
-
 		if not pcall(do_nicefill, event.surface_index, event.tiles ) then
 			log( "NiceFill failed." )
 		end
@@ -115,7 +113,7 @@ script.on_event(defines.events.script_raised_set_tiles,
 
 script.on_event(defines.events.on_chunk_generated,
 	function(event)
-		if string.starts(event.surface.name, "NiceFill") then
+		if not NiceFill.is_nicefill_surface(event.surface) then
 			debug.print(serpent.block( event.area ) )
 		end
 	end
