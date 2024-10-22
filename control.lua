@@ -9,7 +9,7 @@ NiceFill = require('scripts.nicefill')
 ---@param item_name string
 ---@param tiles Tile[]
 function do_nicefill( surface_index, item_name, tiles )
-	surface = game.get_surface(surface_index);
+	local surface = game.get_surface(surface_index);
 
 	if(surface == nil) then
 		log(string.format('Unable to get a surface with index %d', surface_index))
@@ -26,7 +26,7 @@ function do_nicefill( surface_index, item_name, tiles )
 
 
 	-- Try to get the NiceFill surface for this surface
-	NiceFillSurface = NiceFill.get_surface_from(surface)
+	local NiceFillSurface = NiceFill.get_surface_from(surface)
 
 	-- Validate the NiceFill surface
 	if(NiceFillSurface ~= nil and not NiceFill.validate_surface(NiceFillSurface, tiles)) then
@@ -48,30 +48,7 @@ function do_nicefill( surface_index, item_name, tiles )
 		return
 	end
 
-	local tilelist = {}	--this list is temporary, it contains tiles that has been landfilled, and we remove ready tiles from it each round.
-
-	--build temporary list of landfilled tiles
-	for _, tile in pairs(tiles) do
-
-		if not NiceFillSurface.is_chunk_generated( { x=(tile.position.x / 32), y=(tile.position.y / 32) } ) then
-			NiceFillSurface.request_to_generate_chunks( { x=tile.position.x, y=tile.position.y }, 0 )
-		end
-
-		NiceFillSurface.force_generate_chunk_requests()
-
-		local NFSTile = NiceFillSurface.get_tile( tile.position.x, tile.position.y )
-
-		debug.print(NFSTile.name)
-		if DEBUG then log(NFSTile.name) end
-
-		if string.match(NFSTile.name, "water") ~= nil then
-			log( "NiceFill failed to get correct texture. Default will be used at x:" .. tile.position.x .. " y:" .. tile.position.y .. " failing source texture is: " .. NFSTile.name )
-		else
-			table.insert( tilelist, {name=NFSTile.name, position = NFSTile.position } )
-		end
-
-	end
-	--and update the game map. There is probably a way to cache this too, TODO?
+	local nice_tiles = NiceFill.get_tiles(NiceFillSurface, tiles)
 
 	if settings.global["nicefill-dowaterblending"].value == true then
 		local waterblend_tilelist = {}
@@ -85,7 +62,7 @@ function do_nicefill( surface_index, item_name, tiles )
 
 			for i = -2,2 do
 				for j = -2,2 do
-					temp_position = { x=(tile.position.x + j), y=(tile.position.y + i) }
+					local temp_position = { x=(tile.position.x + j), y=(tile.position.y + i) }
 
 					if surface.get_tile(temp_position.x, temp_position.y).name == "deepwater" then
 						local temp_tile = surface.get_tile(temp_position.x, temp_position.y)
@@ -131,7 +108,7 @@ function do_nicefill( surface_index, item_name, tiles )
 
 	end
 
-	surface.set_tiles( tilelist );
+	surface.set_tiles( nice_tiles );
 end
 
 script.on_init(
