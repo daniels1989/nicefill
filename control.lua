@@ -161,7 +161,7 @@ if DEBUG then
 		local player = game.get_player(command.player_index)
 		if player == nil then return end
 
-		game.delete_surface(NiceFill.get_surface_name_from(player.surface))
+		pcall( game.delete_surface, NiceFill.get_surface_name_from(player.surface) )
 		NiceFill.create_surface_from(player.surface)
 	end)
 end
