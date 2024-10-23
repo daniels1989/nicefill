@@ -20,8 +20,7 @@ function do_nicefill( surface_index, tiles )
 		return
 	end
 
-	-- Todo support other tiles that only need waterblending e.g. aquilo/ice platforms
-	tiles = NiceFill.filter_tiles(tiles, 'landfill')
+	tiles = NiceFill.filter_supported_tiles(tiles)
 	if #tiles == 0 then return end
 
 	-- delete legacy surfaces, we are no longer using them

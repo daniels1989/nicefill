@@ -1,8 +1,10 @@
 local NiceFill = {}
 
 NiceFill.surface_prefix = "NiceFill_"
-NiceFill.replaceable_tiles = {
-	"water", "deepwater", "water-green", "deepwater-green", --nauvis
+NiceFill.tile_conditions = {
+	["landfill"] = {
+		"water", "deepwater", "water-green", "deepwater-green", --nauvis
+	}
 }
 NiceFill.water_blending_mapping = {
 	["deepwater"] = "water",
@@ -10,8 +12,10 @@ NiceFill.water_blending_mapping = {
 }
 
 if script.active_mods['space-age'] then
-	table_merge(NiceFill.replaceable_tiles, {
-		"water-mud", "water-shallow", --nauvis, added in base but can't be landfilled without Space Age?
+	table_merge(NiceFill.tile_conditions["landfill"], {
+		--nauvis, added in base but can't be landfilled without Space Age?
+		"water-mud",
+		"water-shallow",
 
 		-- gleba
 		"wetland-light-green-slime",
@@ -30,9 +34,51 @@ if script.active_mods['space-age'] then
 		--fulgora and vulcanus use foundation
 	})
 
+	table_merge_keys(NiceFill.tile_conditions, {
+		["ice-platform"] = {
+			--aquilo
+			"ammoniacal-ocean",
+			"ammoniacal-ocean-2",
+			"brash-ice",
+		}
+	})
+
 	table_merge_keys(NiceFill.water_blending_mapping, {
 		["gleba-deep-lake"] = "wetland-blue-slime",
 	})
+end
+
+---@return string[]
+function NiceFill.get_supported_tiles()
+	local tiles = {}
+
+	for name, _ in pairs(NiceFill.tile_conditions) do
+		table.insert(tiles, name)
+	end
+
+	return tiles
+end
+
+---@return string[]
+function NiceFill.get_replaceable_tiles()
+	local tiles = {}
+
+	for _, conditions in pairs(NiceFill.tile_conditions) do
+		table_merge(tiles, conditions)
+	end
+
+	return tiles
+end
+
+---
+---@param tile string Tile that NiceFill should support when it's being placed
+---@param tiles string[] The tiles that `tile` can replace, these won't be generated when generating a NiceFill surface
+function NiceFill.register_tile_conditions(tile, tiles)
+	if NiceFill.tile_conditions[tile] == nil then
+		NiceFill.tile_conditions[tile] = {}
+	end
+
+	table_merge(NiceFill.tile_conditions[tile], tiles)
 end
 
 ---@param surface LuaSurface
@@ -43,8 +89,7 @@ function NiceFill.create_surface_from(surface)
 	local map_gen_settings = surface.map_gen_settings
 	if DEBUG then log( serpent.block( map_gen_settings ) ) end
 
-	---@type AutoplaceControl
-	local autoplace_none = { frequency = 0, size = 0, richness = 0 }
+	local replaceable_tiles = NiceFill.get_replaceable_tiles()
 
 	local autoplace_controls = {
 		"enemy-base", "trees", --nauvis
@@ -54,36 +99,34 @@ function NiceFill.create_surface_from(surface)
 	-- Disable autoplace controls
 	for name, _ in pairs(map_gen_settings.autoplace_controls) do
 		if table_contains(autoplace_controls, name) then
-			map_gen_settings.autoplace_controls[name] = autoplace_none
+			map_gen_settings.autoplace_controls[name] = { frequency = 0, size = 0, richness = 0 }
 		end
 	end
 
 	-- Disable placement of entities
 	for name, _ in pairs(map_gen_settings.autoplace_settings.entity.settings) do
-		map_gen_settings.autoplace_settings.entity.settings[name] = autoplace_none
+		map_gen_settings.autoplace_settings.entity.settings[name] = { frequency = 0, size = 0, richness = 0 }
 	end
 
 	-- Disable placement of decoratives
 	for name, _ in pairs(map_gen_settings.autoplace_settings.decorative.settings) do
-		map_gen_settings.autoplace_settings.decorative.settings[name] = autoplace_none
+		map_gen_settings.autoplace_settings.decorative.settings[name] = { frequency = 0, size = 0, richness = 0 }
 	end
 
 	-- Disable placement of replaceable tiles
 	for name, _ in pairs(map_gen_settings.autoplace_settings.tile.settings) do
-		if table_contains(NiceFill.replaceable_tiles, name) then
-			map_gen_settings.autoplace_settings.tile.settings[name] = autoplace_none
+		if table_contains(replaceable_tiles, name) then
+			map_gen_settings.autoplace_settings.tile.settings[name] = { frequency = 0, size = 0, richness = 0 }
 		end
 	end
 
 	-- Disable placement of replaceable tiles by reducing their probability
 	-- Originally added by slippycheeze
-	for _, name in pairs(NiceFill.replaceable_tiles) do
+	for _, name in pairs(replaceable_tiles) do
 		map_gen_settings.property_expression_names["tile:"..name..":probability"] = "-1000"
 	end
 
-	-- Disable starting area and enemies
-	map_gen_settings.starting_area = 0
-	map_gen_settings.starting_points = {}
+	-- Disable enemies
 	map_gen_settings.peaceful_mode = true
 
 	-- Disable cliffs
@@ -144,10 +187,11 @@ end
 ---@return Tile?
 function NiceFill.get_nice_tile(surface, tile)
 	local nice_tile = surface.get_tile( tile.position.x, tile.position.y )
+	local replaceable_tiles = NiceFill.get_replaceable_tiles()
 
 	if DEBUG then log( "NiceFill nice tile: " .. nice_tile.name ) end
 
-	if not table_contains(NiceFill.replaceable_tiles, nice_tile.name) then
+	if not table_contains(replaceable_tiles, nice_tile.name) then
 		return { name = nice_tile.name, position = nice_tile.position }
 	end
 
@@ -257,14 +301,14 @@ function NiceFill.validate_surface(surface, tiles)
 end
 
 ---@param tiles Tile[]
----@param tile_name string
 ---@return Tile[]
-function NiceFill.filter_tiles(tiles, tile_name)
+function NiceFill.filter_supported_tiles(tiles)
 	---@type Tile[]
 	local filtered = {}
+	local supported = NiceFill.get_supported_tiles()
 
 	for _, tile in pairs(tiles) do
-		if tile.name == tile_name then
+		if table_contains(supported, tile.name) then
 			table.insert( filtered, tile )
 		end
 	end
