@@ -141,11 +141,27 @@ script.on_event(defines.events.on_surface_created,
 	end
 )
 
+-- /c remote.call("NiceFill", "spawn_tiles")
+-- remote.add_interface("NiceFill", {
+-- })
+
 if DEBUG then
-	-- /c remote.call("NiceFill", "spawn_tiles")
-	remote.add_interface("NiceFill", {
-		spawn_tiles = function()
-			debug.spawn_tiles()
-		end
-	})
+	-- /nf_spawn_tiles landfill
+	commands.add_command('nf_spawn_tiles', nil, function (command)
+		local player = game.get_player(command.player_index)
+		if player == nil then return end
+
+		local tile = command.parameter
+		if tile == nil then tile = 'landfill' end
+
+		debug.spawn_tiles(player, tile)
+	end)
+
+	commands.add_command('nf_create_surface', nil, function (command)
+		local player = game.get_player(command.player_index)
+		if player == nil then return end
+
+		game.delete_surface(NiceFill.get_surface_name_from(player.surface))
+		NiceFill.create_surface_from(player.surface)
+	end)
 end
