@@ -164,4 +164,12 @@ if DEBUG then
 		pcall( game.delete_surface, NiceFill.get_surface_name_from(player.surface) )
 		NiceFill.create_surface_from(player.surface)
 	end)
+
+	commands.add_command('nf_sample_tiles', nil, function (command)
+		local player = game.get_player(command.player_index)
+		if player == nil then return end
+
+		local tiles = player.surface.find_tiles_filtered{ position = player.position, radius = 2}
+		for _, tile in pairs(tiles) do debug.print(tile.name) end
+	end)
 end
