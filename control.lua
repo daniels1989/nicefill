@@ -116,6 +116,8 @@ script.on_event(defines.events.on_surface_created, function(event)
 
 	debug.print('NiceFill created surface ' .. surface.name)
 
+	NiceFill.hide_surface(surface)
+
 	if remote.interfaces["RSO"] then -- RSO compatibility
 		if pcall(remote.call, "RSO", "ignoreSurface", surface) then
 			if DEBUG then log( "NiceFill surface registered with RSO." ) end
