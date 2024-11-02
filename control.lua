@@ -4,6 +4,7 @@ require('scripts.util')
 debug = require('scripts.debug')
 
 NiceFill = require('scripts.nicefill')
+SurfaceHelper = require('scripts.surface')
 
 -- For testing
 -- Unlock planets with /cheat planetname, e.g. /cheat gleba
