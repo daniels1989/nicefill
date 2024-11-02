@@ -45,6 +45,8 @@ if script.active_mods['space-age'] then
 
 	table_merge_keys(NiceFill.water_blending_mapping, {
 		["gleba-deep-lake"] = "wetland-blue-slime",
+		["ammoniacal-ocean"] = "brash-ice",
+		["ammoniacal-ocean-2"] = "brash-ice",
 	})
 end
 
