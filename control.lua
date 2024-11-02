@@ -104,6 +104,15 @@ script.on_event(defines.events.script_raised_set_tiles, function(event)
 	end
 end)
 
+script.on_event(defines.events.on_force_created, function(event)
+	debug.print(string.format(
+		"NiceFill detected force '%s' creation",
+		event.force.name
+	))
+
+	NiceFill.hide_surfaces_from_force(event.force)
+end)
+
 script.on_event(defines.events.on_surface_created, function(event)
 	local surface = game.get_surface(event.surface_index)
 
