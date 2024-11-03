@@ -1,10 +1,17 @@
+-- Set to true to enable full logging.
 DEBUG = false
 
-require('scripts.util')
-debug = require('scripts.debug')
+-- Require runtime helpers
+debug = require('scripts/helpers/debug')
+SurfaceHelper = require('scripts/helpers/surface')
+require('scripts/helpers/util')
 
-NiceFill = require('scripts.nicefill')
-SurfaceHelper = require('scripts.surface')
+-- require general utils
+require('utils/string')
+require('utils/table')
+
+-- require the thing that does all the things
+NiceFill = require('scripts/nicefill')
 
 -- For testing
 -- Unlock planets with /cheat planetname, e.g. /cheat gleba

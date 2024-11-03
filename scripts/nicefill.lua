@@ -12,7 +12,7 @@ NiceFill.water_blending_mapping = {
 }
 
 if script.active_mods['space-age'] then
-	table_merge(NiceFill.tile_conditions["landfill"], {
+	table.merge(NiceFill.tile_conditions["landfill"], {
 		--nauvis, added in base but can't be landfilled without Space Age?
 		"water-mud",
 		"water-shallow",
@@ -34,7 +34,7 @@ if script.active_mods['space-age'] then
 		--fulgora and vulcanus use foundation
 	})
 
-	table_merge_keys(NiceFill.tile_conditions, {
+	table.merge_keys(NiceFill.tile_conditions, {
 		["ice-platform"] = {
 			--aquilo
 			"ammoniacal-ocean",
@@ -43,7 +43,7 @@ if script.active_mods['space-age'] then
 		}
 	})
 
-	table_merge_keys(NiceFill.water_blending_mapping, {
+	table.merge_keys(NiceFill.water_blending_mapping, {
 		["gleba-deep-lake"] = "wetland-blue-slime",
 		["ammoniacal-ocean"] = "brash-ice",
 		["ammoniacal-ocean-2"] = "brash-ice",
@@ -66,7 +66,7 @@ function NiceFill.get_replaceable_tiles()
 	local tiles = {}
 
 	for _, conditions in pairs(NiceFill.tile_conditions) do
-		table_merge(tiles, conditions)
+		table.merge(tiles, conditions)
 	end
 
 	return tiles
@@ -80,7 +80,7 @@ function NiceFill.register_tile_conditions(tile, tiles)
 		NiceFill.tile_conditions[tile] = {}
 	end
 
-	table_merge(NiceFill.tile_conditions[tile], tiles)
+	table.merge(NiceFill.tile_conditions[tile], tiles)
 end
 
 ---@param surface LuaSurface
@@ -100,7 +100,7 @@ function NiceFill.create_surface_from(surface)
 
 	-- Disable autoplace controls
 	for name, _ in pairs(map_gen_settings.autoplace_controls) do
-		if table_contains(autoplace_controls, name) then
+		if table.contains(autoplace_controls, name) then
 			map_gen_settings.autoplace_controls[name] = { frequency = 0, size = 0, richness = 0 }
 		end
 	end
@@ -117,7 +117,7 @@ function NiceFill.create_surface_from(surface)
 
 	-- Disable placement of replaceable tiles
 	for name, _ in pairs(map_gen_settings.autoplace_settings.tile.settings) do
-		if table_contains(replaceable_tiles, name) then
+		if table.contains(replaceable_tiles, name) then
 			map_gen_settings.autoplace_settings.tile.settings[name] = { frequency = 0, size = 0, richness = 0 }
 		end
 	end
@@ -158,7 +158,7 @@ end
 
 ---@param surface LuaSurface
 function NiceFill.get_surface_name_from(surface)
-	if string.starts(surface.name, NiceFill.surface_prefix) then
+	if NiceFill.is_nicefill_surface(surface) then
 		return surface.name
 	end
 
@@ -169,7 +169,7 @@ end
 ---@return boolean
 function NiceFill.is_nicefill_surface(surface)
 	if surface == nil then return false end
-	return string.starts(surface.name, NiceFill.surface_prefix)
+	return string.starts_with(surface.name, NiceFill.surface_prefix)
 end
 
 ---@param surface LuaSurface
@@ -193,7 +193,7 @@ function NiceFill.get_nice_tile(surface, tile)
 
 	if DEBUG then log( "NiceFill nice tile: " .. nice_tile.name ) end
 
-	if not table_contains(replaceable_tiles, nice_tile.name) then
+	if not table.contains(replaceable_tiles, nice_tile.name) then
 		return { name = nice_tile.name, position = nice_tile.position }
 	end
 
@@ -248,7 +248,7 @@ function NiceFill.get_water_blending_tiles(surface, tiles)
 
 				if DEBUG then log(string.format('%s at %d, %d', temp_tile.name, x, y)) end
 
-				if table_key_exists(NiceFill.water_blending_mapping, temp_tile.name) then
+				if table.key_exists(NiceFill.water_blending_mapping, temp_tile.name) then
 					---@type LuaEntity[]
 					local temp_tile_ghosts = surface.find_entities_filtered{ position = temp_position, radius = 1, type="tile-ghost" }
 
@@ -310,7 +310,7 @@ function NiceFill.filter_supported_tiles(tiles)
 	local supported = NiceFill.get_supported_tiles()
 
 	for _, tile in pairs(tiles) do
-		if table_contains(supported, tile.name) then
+		if table.contains(supported, tile.name) then
 			table.insert( filtered, tile )
 		end
 	end
