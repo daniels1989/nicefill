@@ -1,11 +1,16 @@
+-- Set to true to enable full logging.
 DEBUG = true
 
+-- Require runtime helpers
 debug = require('scripts/helpers/debug')
 SurfaceHelper = require('scripts/helpers/surface')
+require('scripts/helpers/util')
 
+-- require general utils
 require('utils/string')
 require('utils/table')
 
+-- require the thing that does all the things
 NiceFill = require('scripts/nicefill')
 
 -- For testing
