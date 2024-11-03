@@ -50,6 +50,57 @@ if script.active_mods['space-age'] then
 	})
 end
 
+---@param surface_index integer
+---@param tiles Tile[]
+function NiceFill.run(surface_index, tiles)
+	local surface = game.get_surface(surface_index);
+
+	if surface == nil then
+		log(string.format('Unable to get a surface with index %d', surface_index))
+		return
+	end
+
+	tiles = NiceFill.filter_supported_tiles(tiles)
+	if #tiles == 0 then return end
+
+	-- delete legacy surfaces, we are no longer using them
+	NiceFill.delete_legacy_surfaces()
+
+	-- Try to get the NiceFill surface for this surface
+	local NiceFillSurface = NiceFill.get_surface_from(surface)
+
+	-- Validate the NiceFill surface
+	if NiceFillSurface ~= nil and not NiceFill.validate_surface(NiceFillSurface, tiles) then
+		-- Delete the surface if it's invalid
+		game.delete_surface(NiceFillSurface)
+		NiceFillSurface = NiceFill.get_surface_from(surface) -- Should be the same as NiceFillSurface = nil
+	end
+
+	-- If there's no NiceFill surface at this point, try to create it
+	if NiceFillSurface == nil then
+		NiceFill.create_surface_from(surface)
+		NiceFillSurface = NiceFill.get_surface_from(surface)
+	end
+
+	if NiceFillSurface == nil then
+		local message = string.format('NiceFill failed to get or create a NiceFill surface for "%s".', surface.name)
+		log( message )
+		debug.print( message );
+		return
+	end
+
+	-- Get nicer tiles
+	local nice_tiles = NiceFill.get_nice_tiles(NiceFillSurface, tiles)
+
+	if settings.global["nicefill-dowaterblending"].value == true then
+		-- Get water blending tiles and set them first
+		local water_blending_tiles = NiceFill.get_water_blending_tiles(surface, tiles)
+		surface.set_tiles( water_blending_tiles )
+	end
+
+	surface.set_tiles( nice_tiles )
+end
+
 ---@return string[]
 function NiceFill.get_supported_tiles()
 	local tiles = {}
