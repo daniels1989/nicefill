@@ -4,6 +4,7 @@ require('scripts.util')
 debug = require('scripts.debug')
 
 NiceFill = require('scripts.nicefill')
+SurfaceHelper = require('scripts.surface')
 
 -- For testing
 -- Unlock planets with /cheat planetname, e.g. /cheat gleba
@@ -103,6 +104,15 @@ script.on_event(defines.events.script_raised_set_tiles, function(event)
 	end
 end)
 
+script.on_event(defines.events.on_force_created, function(event)
+	debug.print(string.format(
+		"NiceFill detected force '%s' creation",
+		event.force.name
+	))
+
+	NiceFill.hide_surfaces_from_force(event.force)
+end)
+
 script.on_event(defines.events.on_surface_created, function(event)
 	local surface = game.get_surface(event.surface_index)
 
@@ -114,6 +124,8 @@ script.on_event(defines.events.on_surface_created, function(event)
 	if not NiceFill.is_nicefill_surface(surface) then return end
 
 	debug.print('NiceFill created surface ' .. surface.name)
+
+	NiceFill.hide_surface(surface)
 
 	if remote.interfaces["RSO"] then -- RSO compatibility
 		if pcall(remote.call, "RSO", "ignoreSurface", surface) then

@@ -282,5 +282,19 @@ function NiceFill.delete_legacy_surfaces()
 	end
 end
 
+---@param surface LuaSurface
+function NiceFill.hide_surface(surface)
+	SurfaceHelper.change_surface_visibility_for_forces(surface, true)
+end
+
+---@param force LuaForce
+function NiceFill.hide_surfaces_from_force(force)
+	SurfaceHelper.change_surfaces_visibility_for_force(force, true)
+end
+
+function NiceFill.hide_surfaces()
+	SurfaceHelper.change_surfaces_visibility(true)
+end
+
 
 return NiceFill
