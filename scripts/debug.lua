@@ -15,17 +15,19 @@ function debug.print(message, ...)
 	game.print(string.format(message, table.unpack(args, 1, args.n)))
 end
 
-function debug.spawn_tiles()
-	local center = game.player.position
-	local surface = game.player.surface
+---@param player LuaPlayer
+---@param tile string
+function debug.spawn_tiles(player, tile)
+	local center = player.position
+	local surface = player.surface
 
-	if not surface then return end
+	if prototypes.tile[tile] == nil then player.print('invalid tile') return end
 
 	---@type Tile[]
 	local valid = {}
 	for i = -1,1 do
 		for j = -1,1 do
-			valid[#valid+1] = {name = "landfill", position = {center.x + i, center.y + j}}
+			valid[#valid+1] = {name = tile, position = {center.x + i, center.y + j}}
 		end
 	end
 
