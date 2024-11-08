@@ -95,8 +95,10 @@ function NiceFill.run(surface_index, tiles)
 	if settings.global["nicefill-dowaterblending"].value == true then
 		-- Get water blending tiles and set them first
 		local water_blending_tiles = NiceFill.get_water_blending_tiles(surface, tiles)
-		surface.set_tiles( water_blending_tiles )
+		table.merge(nice_tiles, water_blending_tiles)
 	end
+
+	nice_tiles = NiceFill.filter_unique_tile_positions(nice_tiles)
 
 	surface.set_tiles( nice_tiles )
 end
@@ -363,6 +365,25 @@ function NiceFill.filter_supported_tiles(tiles)
 	for _, tile in pairs(tiles) do
 		if table.contains(supported, tile.name) then
 			table.insert( filtered, tile )
+		end
+	end
+
+	return filtered
+end
+
+---@param tiles Tile[]
+function NiceFill.filter_unique_tile_positions(tiles)
+	---@type Tile[]
+	local filtered = {}
+
+	---@type string[]
+	local keys = {}
+
+	for _, tile in pairs(tiles) do
+		local key = string.format("%d,%d", tile.position.x, tile.position.y)
+		if not table.contains(keys, key) then
+			table.insert( filtered, tile )
+			table.insert( keys, key )
 		end
 	end
 
