@@ -289,36 +289,36 @@ function NiceFill.get_water_blending_tiles(surface, tiles)
 	for _, tile in pairs(tiles) do
 		if DEBUG then log(string.format('---Water blending start %d, %d', tile.position.x, tile.position.y)) end
 
-		for y = -2,2 do
-			for x = -2,2 do
-				---@type MapPosition
-				local temp_position = { x = (tile.position.x + x), y = (tile.position.y + y) }
 
-				---@type LuaTile
-				local temp_tile = surface.get_tile(temp_position.x, temp_position.y)
+		for _, position in pairs(Circle.calculate(math.random(3))) do
+			---@type MapPosition
+			local temp_position = { x = (tile.position.x + position.x), y = (tile.position.y + position.y) }
+			if DEBUG then log(serpent.line(temp_position)) end
 
-				if DEBUG then log(string.format('%s at %d, %d', temp_tile.name, x, y)) end
+			---@type LuaTile
+			local temp_tile = surface.get_tile(temp_position.x, temp_position.y)
 
-				if table.key_exists(NiceFill.water_blending_mapping, temp_tile.name) then
-					---@type LuaEntity[]
+			if DEBUG then log(string.format('%s at %d, %d', temp_tile.name, position.x, position.y)) end
+
+			if table.key_exists(NiceFill.water_blending_mapping, temp_tile.name) then
+				---@type LuaEntity[]
 					local temp_tile_ghosts = surface.find_entities_filtered{ position = temp_position, radius = 1, type="tile-ghost" }
 
-					if DEBUG then
-						log(string.format(
-							'Replacing %s with %s at %d, $d',
-							temp_tile.name,
-							NiceFill.water_blending_mapping[temp_tile.name],
-							temp_position.x,
+				if DEBUG then
+					log(string.format(
+						'Replacing %s with %s at %d, %d',
+						temp_tile.name,
+						NiceFill.water_blending_mapping[temp_tile.name],
+						temp_position.x,
 							temp_position.y
 						))
 					end
 
 					if #temp_tile_ghosts == 0 then
 						table.insert( water_blending_tiles, {
-							name = NiceFill.water_blending_mapping[temp_tile.name],
-							position = temp_position
-						} )
-					end
+						name = NiceFill.water_blending_mapping[temp_tile.name],
+						position = temp_position
+					} )
 				end
 			end
 		end
