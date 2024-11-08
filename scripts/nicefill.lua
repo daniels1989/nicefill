@@ -37,6 +37,7 @@ if script.active_mods['space-age'] then
 		--aquilo, fulgora and vulcanus cannot be landfilled
 		--aquilo uses ice-platform
 		--fulgora and vulcanus use foundation
+		--foundation can be used most anywhere, except in oil-ocean of fulgora
 	})
 
 	table.merge_keys(NiceFill.tile_conditions, {
@@ -318,7 +319,7 @@ function NiceFill.get_water_blending_tiles(surface, tiles)
 
 			if table.key_exists(NiceFill.water_blending_mapping, temp_tile.name) then
 				---@type LuaEntity[]
-					local temp_tile_ghosts = surface.find_entities_filtered{ position = temp_position, radius = 1, type="tile-ghost" }
+				local temp_tile_ghosts = surface.find_entities_filtered{ position = temp_position, radius = 1, type="tile-ghost" }
 
 				if DEBUG then
 					log(string.format(
@@ -326,12 +327,12 @@ function NiceFill.get_water_blending_tiles(surface, tiles)
 						temp_tile.name,
 						NiceFill.water_blending_mapping[temp_tile.name],
 						temp_position.x,
-							temp_position.y
-						))
-					end
+						temp_position.y
+					))
+				end
 
-					if #temp_tile_ghosts == 0 then
-						table.insert( water_blending_tiles, {
+				if #temp_tile_ghosts == 0 then
+					table.insert( water_blending_tiles, {
 						name = NiceFill.water_blending_mapping[temp_tile.name],
 						position = temp_position
 					} )
