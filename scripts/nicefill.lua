@@ -10,6 +10,11 @@ NiceFill.water_blending_mapping = {
 	["deepwater"] = "water",
 	["deepwater-green"] = "water-green",
 }
+NiceFill.water_blending_radius = {
+	["landfill"] = {0, 0.6, 0.9}, -- 60% r1, 30% r2, 10% r3
+	["ice-platform"] = {0.8, 0.95}, -- 80% r0, 15% r1, 5% r2
+}
+
 
 if script.active_mods['space-age'] then
 	table.merge(NiceFill.tile_conditions["landfill"], {
@@ -291,8 +296,17 @@ function NiceFill.get_water_blending_tiles(surface, tiles)
 	for _, tile in pairs(tiles) do
 		if DEBUG then log(string.format('---Water blending start %d, %d', tile.position.x, tile.position.y)) end
 
+		local radius = 0
+		local probability = math.random()
+		for new_radius, probability_threshold in pairs(NiceFill.water_blending_radius[tile.name]) do
+			if probability >= probability_threshold then
+				radius = new_radius
+			end
+		end
 
-		for _, position in pairs(Circle.calculate(math.random(3))) do
+		if DEBUG then log(string.format("Tile: %s, probability: %f, radius: %d", tile.name, probability, radius)) end
+
+		for _, position in pairs(Circle.calculate(radius)) do
 			---@type MapPosition
 			local temp_position = { x = (tile.position.x + position.x), y = (tile.position.y + position.y) }
 			if DEBUG then log(serpent.line(temp_position)) end
