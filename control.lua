@@ -2,6 +2,7 @@
 DEBUG = true
 
 -- Require runtime helpers
+Circle = require('scripts/helpers/circle')
 debug = require('scripts/helpers/debug')
 SurfaceHelper = require('scripts/helpers/surface')
 require('scripts/helpers/util')
