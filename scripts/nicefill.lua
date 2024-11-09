@@ -11,7 +11,7 @@ NiceFill.smooth_transition_tile_mapping = {
 	["deepwater-green"] = "water-green",
 }
 NiceFill.smooth_transition_radius = {
-	["landfill"] = {0, 0.6, 0.9}, -- 60% r1, 30% r2, 10% r3
+	["landfill"] = {0, 0.5, 0.8, 0.92, 0.99}, -- 50%, 30%, 12%, 7%, 1%
 }
 
 
