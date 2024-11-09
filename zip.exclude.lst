@@ -1,0 +1,6 @@
+*/.git*
+*/.vscode/*
+
+*/makefile
+**.psd
+*/zip.*.lst
