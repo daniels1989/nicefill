@@ -12,13 +12,13 @@ NiceFill.water_blending_mapping = {
 }
 NiceFill.water_blending_radius = {
 	["landfill"] = {0, 0.6, 0.9}, -- 60% r1, 30% r2, 10% r3
-	["ice-platform"] = {0.8, 0.95}, -- 80% r0, 15% r1, 5% r2
 }
 
 
 if script.active_mods['space-age'] then
 	table.merge(NiceFill.tile_conditions["landfill"], {
 		--nauvis, added in base but can't be landfilled without Space Age?
+		--Supposedly these were only used in tutorials in the base
 		"water-mud",
 		"water-shallow",
 
@@ -40,20 +40,29 @@ if script.active_mods['space-age'] then
 		--foundation can be used most anywhere, except in oil-ocean of fulgora
 	})
 
-	table.merge_keys(NiceFill.tile_conditions, {
-		["ice-platform"] = {
-			--aquilo
-			"ammoniacal-ocean",
-			"ammoniacal-ocean-2",
-			"brash-ice",
-		}
-	})
-
 	table.merge_keys(NiceFill.water_blending_mapping, {
 		["gleba-deep-lake"] = "wetland-blue-slime",
-		["ammoniacal-ocean"] = "brash-ice",
-		["ammoniacal-ocean-2"] = "brash-ice",
 	})
+
+	if settings.global["nicefill--enable-ice-platform"].value == true then
+		table.merge_keys(NiceFill.tile_conditions, {
+			["ice-platform"] = {
+				--aquilo
+				"ammoniacal-ocean",
+				"ammoniacal-ocean-2",
+				"brash-ice",
+			}
+		})
+
+		table.merge_keys(NiceFill.water_blending_mapping, {
+			["ammoniacal-ocean"] = "brash-ice",
+			["ammoniacal-ocean-2"] = "brash-ice",
+		})
+
+		table.merge_keys(NiceFill.water_blending_radius, {
+			["ice-platform"] = {0.8, 0.95}, -- 80% r0, 15% r1, 5% r2
+		})
+	end
 end
 
 ---@param surface_index integer
@@ -98,7 +107,7 @@ function NiceFill.run(surface_index, tiles)
 	-- Get nicer tiles
 	local nice_tiles = NiceFill.get_nice_tiles(NiceFillSurface, tiles)
 
-	if settings.global["nicefill-dowaterblending"].value == true then
+	if settings.global["nicefill--enable-smooth-transitions"].value == true then
 		-- Get water blending tiles and set them first
 		local water_blending_tiles = NiceFill.get_water_blending_tiles(surface, tiles)
 		table.merge(nice_tiles, water_blending_tiles)
