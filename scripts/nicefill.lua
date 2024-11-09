@@ -6,14 +6,19 @@ NiceFill.tile_conditions = {
 		"water", "deepwater", "water-green", "deepwater-green", --nauvis
 	}
 }
-NiceFill.water_blending_mapping = {
+NiceFill.smooth_transition_tile_mapping = {
 	["deepwater"] = "water",
 	["deepwater-green"] = "water-green",
 }
+NiceFill.smooth_transition_radius = {
+	["landfill"] = {0, 0.6, 0.9}, -- 60% r1, 30% r2, 10% r3
+}
+
 
 if script.active_mods['space-age'] then
 	table.merge(NiceFill.tile_conditions["landfill"], {
 		--nauvis, added in base but can't be landfilled without Space Age?
+		--Supposedly these were only used in tutorials in the base
 		"water-mud",
 		"water-shallow",
 
@@ -32,22 +37,32 @@ if script.active_mods['space-age'] then
 		--aquilo, fulgora and vulcanus cannot be landfilled
 		--aquilo uses ice-platform
 		--fulgora and vulcanus use foundation
+		--foundation can be used most anywhere, except in oil-ocean of fulgora
 	})
 
-	table.merge_keys(NiceFill.tile_conditions, {
-		["ice-platform"] = {
-			--aquilo
-			"ammoniacal-ocean",
-			"ammoniacal-ocean-2",
-			"brash-ice",
-		}
-	})
-
-	table.merge_keys(NiceFill.water_blending_mapping, {
+	table.merge_keys(NiceFill.smooth_transition_tile_mapping, {
 		["gleba-deep-lake"] = "wetland-blue-slime",
-		["ammoniacal-ocean"] = "brash-ice",
-		["ammoniacal-ocean-2"] = "brash-ice",
 	})
+
+	if settings.global["nicefill--enable-ice-platform"].value == true then
+		table.merge_keys(NiceFill.tile_conditions, {
+			["ice-platform"] = {
+				--aquilo
+				"ammoniacal-ocean",
+				"ammoniacal-ocean-2",
+				"brash-ice",
+			}
+		})
+
+		table.merge_keys(NiceFill.smooth_transition_tile_mapping, {
+			["ammoniacal-ocean"] = "brash-ice",
+			["ammoniacal-ocean-2"] = "brash-ice",
+		})
+
+		table.merge_keys(NiceFill.smooth_transition_radius, {
+			["ice-platform"] = {0.8, 0.95}, -- 80% r0, 15% r1, 5% r2
+		})
+	end
 end
 
 ---@param surface_index integer
@@ -92,11 +107,13 @@ function NiceFill.run(surface_index, tiles)
 	-- Get nicer tiles
 	local nice_tiles = NiceFill.get_nice_tiles(NiceFillSurface, tiles)
 
-	if settings.global["nicefill-dowaterblending"].value == true then
-		-- Get water blending tiles and set them first
-		local water_blending_tiles = NiceFill.get_water_blending_tiles(surface, tiles)
-		surface.set_tiles( water_blending_tiles )
+	if settings.global["nicefill--enable-smooth-transitions"].value == true then
+		-- Get smooth transition tiles and merge with nice tiles
+		local smooth_transition_tiles = NiceFill.get_smooth_transition_tiles(surface, tiles)
+		table.merge(nice_tiles, smooth_transition_tiles)
 	end
+
+	nice_tiles = NiceFill.filter_unique_tile_positions(nice_tiles)
 
 	surface.set_tiles( nice_tiles )
 end
@@ -280,53 +297,62 @@ end
 ---@param surface LuaSurface
 ---@param tiles Tile[]
 ---@return Tile[]
-function NiceFill.get_water_blending_tiles(surface, tiles)
+function NiceFill.get_smooth_transition_tiles(surface, tiles)
 	---@type Tile[]
-	local water_blending_tiles = {}
+	local smooth_tiles = {}
 
-	if DEBUG then log(NiceFill.water_blending_mapping) end
+	if DEBUG then log(NiceFill.smooth_transition_tile_mapping) end
 
 	for _, tile in pairs(tiles) do
-		if DEBUG then log(string.format('---Water blending start %d, %d', tile.position.x, tile.position.y)) end
+		if DEBUG then log(string.format('---Smooth transition start %d, %d', tile.position.x, tile.position.y)) end
 
-		for y = -2,2 do
-			for x = -2,2 do
-				---@type MapPosition
-				local temp_position = { x = (tile.position.x + x), y = (tile.position.y + y) }
+		local radius = 0
+		local probability = math.random()
+		for new_radius, probability_threshold in pairs(NiceFill.smooth_transition_radius[tile.name]) do
+			if probability >= probability_threshold then
+				radius = new_radius
+			end
+		end
 
-				---@type LuaTile
-				local temp_tile = surface.get_tile(temp_position.x, temp_position.y)
+		if DEBUG then log(string.format("Tile: %s, probability: %f, radius: %d", tile.name, probability, radius)) end
 
-				if DEBUG then log(string.format('%s at %d, %d', temp_tile.name, x, y)) end
+		for _, position in pairs(Circle.calculate(radius)) do
+			---@type MapPosition
+			local temp_position = { x = (tile.position.x + position.x), y = (tile.position.y + position.y) }
+			if DEBUG then log(serpent.line(temp_position)) end
 
-				if table.key_exists(NiceFill.water_blending_mapping, temp_tile.name) then
-					---@type LuaEntity[]
-					local temp_tile_ghosts = surface.find_entities_filtered{ position = temp_position, radius = 1, type="tile-ghost" }
+			---@type LuaTile
+			local temp_tile = surface.get_tile(temp_position.x, temp_position.y)
 
-					if DEBUG then
-						log(string.format(
-							'Replacing %s with %s at %d, $d',
-							temp_tile.name,
-							NiceFill.water_blending_mapping[temp_tile.name],
-							temp_position.x,
-							temp_position.y
-						))
-					end
+			if DEBUG then log(string.format('%s at %d, %d', temp_tile.name, position.x, position.y)) end
 
-					if #temp_tile_ghosts == 0 then
-						table.insert( water_blending_tiles, {
-							name = NiceFill.water_blending_mapping[temp_tile.name],
-							position = temp_position
-						} )
-					end
+			if table.key_exists(NiceFill.smooth_transition_tile_mapping, temp_tile.name) then
+				---@type LuaEntity[]
+				local temp_tile_ghosts = surface.find_entities_filtered{ position = temp_position, radius = 1, type="tile-ghost" }
+
+				if DEBUG then
+					log(string.format(
+						'Replacing %s with %s at %d, %d',
+						temp_tile.name,
+						NiceFill.smooth_transition_tile_mapping[temp_tile.name],
+						temp_position.x,
+						temp_position.y
+					))
+				end
+
+				if #temp_tile_ghosts == 0 then
+					table.insert( smooth_tiles, {
+						name = NiceFill.smooth_transition_tile_mapping[temp_tile.name],
+						position = temp_position
+					} )
 				end
 			end
 		end
 
-		if DEBUG then log('---Water blending end') end
+		if DEBUG then log('---Smooth transition end') end
 	end
 
-	return water_blending_tiles
+	return smooth_tiles
 end
 
 ---@param surface LuaSurface?
@@ -363,6 +389,25 @@ function NiceFill.filter_supported_tiles(tiles)
 	for _, tile in pairs(tiles) do
 		if table.contains(supported, tile.name) then
 			table.insert( filtered, tile )
+		end
+	end
+
+	return filtered
+end
+
+---@param tiles Tile[]
+function NiceFill.filter_unique_tile_positions(tiles)
+	---@type Tile[]
+	local filtered = {}
+
+	---@type string[]
+	local keys = {}
+
+	for _, tile in pairs(tiles) do
+		local key = string.format("%d,%d", tile.position.x, tile.position.y)
+		if not table.contains(keys, key) then
+			table.insert( filtered, tile )
+			table.insert( keys, key )
 		end
 	end
 
