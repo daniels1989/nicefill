@@ -2,16 +2,16 @@
 DEBUG = true
 
 -- Require runtime helpers
-Circle = require('scripts/helpers/circle')
-debug = require('scripts/helpers/debug')
-SurfaceHelper = require('scripts/helpers/surface')
-require('scripts/helpers/util')
+CircleHelper = require 'scripts/helpers/circle'
+DebugHelper = require 'scripts/helpers/debug'
+SurfaceHelper = require 'scripts/helpers/surface'
 
--- require general utils
-NiceFillSharedUtils = require 'utils/init'
+-- require utils
+SharedUtils = require 'utils/init'
+ScriptUtils = require 'scripts/util'
 
 -- require the thing that does all the things
-NiceFill = require('scripts/nicefill')
+NiceFill = require 'scripts/nicefill'
 
 -- For testing
 -- Unlock planets with /cheat planetname, e.g. /cheat gleba
@@ -24,11 +24,11 @@ script.on_event(defines.events.on_player_built_tile, function(event)
 		log( serpent.block( event ) )
 	end
 
-	local tiles = convert_old_tile_and_position(event.tile, event.tiles)
+	local tiles = ScriptUtils.convert_old_tile_and_position(event.tile, event.tiles)
 
 	if not pcall( NiceFill.run, event.surface_index, tiles ) then
 		log( "NiceFill failed." )
-		debug.print( "NiceFill failed." );
+		DebugHelper.print( "NiceFill failed." );
 	end
 end)
 
@@ -38,11 +38,11 @@ script.on_event(defines.events.on_robot_built_tile, function(event)
 		log( serpent.block( event ) )
 	end
 
-	local tiles = convert_old_tile_and_position(event.tile, event.tiles)
+	local tiles = ScriptUtils.convert_old_tile_and_position(event.tile, event.tiles)
 
 	if not pcall( NiceFill.run, event.surface_index, tiles ) then
 		log( "NiceFill failed." )
-		debug.print( "NiceFill failed." );
+		DebugHelper.print( "NiceFill failed." );
 	end
 end)
 
@@ -60,7 +60,7 @@ script.on_event(defines.events.script_raised_set_tiles, function(event)
 end)
 
 script.on_event(defines.events.on_force_created, function(event)
-	debug.print(string.format(
+	DebugHelper.print(string.format(
 		"NiceFill detected force '%s' creation",
 		event.force.name
 	))
@@ -78,7 +78,7 @@ script.on_event(defines.events.on_surface_created, function(event)
 
 	if not NiceFill.is_nicefill_surface(surface) then return end
 
-	debug.print('NiceFill created surface ' .. surface.name)
+	DebugHelper.print('NiceFill created surface ' .. surface.name)
 
 	NiceFill.hide_surface(surface)
 
@@ -87,7 +87,7 @@ script.on_event(defines.events.on_surface_created, function(event)
 			if DEBUG then log( "NiceFill surface registered with RSO." ) end
 		else
 			log( "NiceFill surface failed to register with RSO" )
-			debug.print( "NiceFill failed to register surface with RSO" )
+			DebugHelper.print( "NiceFill failed to register surface with RSO" )
 		end
 	end
 end)
@@ -105,7 +105,7 @@ if DEBUG then
 		local tile = command.parameter
 		if tile == nil then tile = 'landfill' end
 
-		debug.spawn_tiles(player, tile)
+		DebugHelper.spawn_tiles(player, tile)
 	end)
 
 	commands.add_command('nf_create_surface', nil, function (command)
@@ -121,12 +121,12 @@ if DEBUG then
 		if player == nil then return end
 
 		local tiles = player.surface.find_tiles_filtered{ position = player.position, radius = 2}
-		for _, tile in pairs(tiles) do debug.print(tile.name) end
+		for _, tile in pairs(tiles) do DebugHelper.print(tile.name) end
 	end)
 
 	script.on_event(defines.events.on_chunk_generated, function(event)
 		if NiceFill.is_nicefill_surface(event.surface) then
-			debug.print(serpent.block( event.area ) )
+			DebugHelper.print(serpent.block( event.area ) )
 		end
 	end)
 end
