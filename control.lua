@@ -8,8 +8,7 @@ SurfaceHelper = require('scripts/helpers/surface')
 require('scripts/helpers/util')
 
 -- require general utils
-require('utils/string')
-require('utils/table')
+NiceFillSharedUtils = require 'utils/init'
 
 -- require the thing that does all the things
 NiceFill = require('scripts/nicefill')

@@ -7,7 +7,7 @@ function Circle.calculate(radius)
 		return {}
 	end
 
-	if table.key_exists(Circle.calculated, radius) then
+	if NiceFillSharedUtils.table.key_exists(Circle.calculated, radius) then
 		return Circle.calculated[radius]
 	end
 
