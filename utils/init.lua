@@ -1,6 +1,6 @@
-local NiceFillUtils = {}
+local Utils = {}
 
-NiceFillUtils.table = require './table'
-NiceFillUtils.string = require './string'
+Utils.table = require './table'
+Utils.string = require './string'
 
-return NiceFillUtils
+return Utils
