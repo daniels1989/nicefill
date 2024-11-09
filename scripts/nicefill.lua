@@ -16,7 +16,7 @@ NiceFill.smooth_transition_radius = {
 
 
 if script.active_mods['space-age'] then
-	table.merge(NiceFill.tile_conditions["landfill"], {
+	SharedUtils.table.merge(NiceFill.tile_conditions["landfill"], {
 		--nauvis, added in base but can't be landfilled without Space Age?
 		--Supposedly these were only used in tutorials in the base
 		"water-mud",
@@ -40,12 +40,12 @@ if script.active_mods['space-age'] then
 		--foundation can be used most anywhere, except in oil-ocean of fulgora
 	})
 
-	table.merge_keys(NiceFill.smooth_transition_tile_mapping, {
+	SharedUtils.table.merge_keys(NiceFill.smooth_transition_tile_mapping, {
 		["gleba-deep-lake"] = "wetland-blue-slime",
 	})
 
 	if settings.global["nicefill--enable-ice-platform"].value == true then
-		table.merge_keys(NiceFill.tile_conditions, {
+		SharedUtils.table.merge_keys(NiceFill.tile_conditions, {
 			["ice-platform"] = {
 				--aquilo
 				"ammoniacal-ocean",
@@ -54,12 +54,12 @@ if script.active_mods['space-age'] then
 			}
 		})
 
-		table.merge_keys(NiceFill.smooth_transition_tile_mapping, {
+		SharedUtils.table.merge_keys(NiceFill.smooth_transition_tile_mapping, {
 			["ammoniacal-ocean"] = "brash-ice",
 			["ammoniacal-ocean-2"] = "brash-ice",
 		})
 
-		table.merge_keys(NiceFill.smooth_transition_radius, {
+		SharedUtils.table.merge_keys(NiceFill.smooth_transition_radius, {
 			["ice-platform"] = {0.8, 0.95}, -- 80% r0, 15% r1, 5% r2
 		})
 	end
@@ -100,7 +100,7 @@ function NiceFill.run(surface_index, tiles)
 	if NiceFillSurface == nil then
 		local message = string.format('NiceFill failed to get or create a NiceFill surface for "%s".', surface.name)
 		log( message )
-		debug.print( message );
+		DebugHelper.print( message );
 		return
 	end
 
@@ -110,7 +110,7 @@ function NiceFill.run(surface_index, tiles)
 	if settings.global["nicefill--enable-smooth-transitions"].value == true then
 		-- Get smooth transition tiles and merge with nice tiles
 		local smooth_transition_tiles = NiceFill.get_smooth_transition_tiles(surface, tiles)
-		table.merge(nice_tiles, smooth_transition_tiles)
+		SharedUtils.table.merge(nice_tiles, smooth_transition_tiles)
 	end
 
 	nice_tiles = NiceFill.filter_unique_tile_positions(nice_tiles)
@@ -134,7 +134,7 @@ function NiceFill.get_replaceable_tiles()
 	local tiles = {}
 
 	for _, conditions in pairs(NiceFill.tile_conditions) do
-		table.merge(tiles, conditions)
+		SharedUtils.table.merge(tiles, conditions)
 	end
 
 	return tiles
@@ -148,12 +148,12 @@ function NiceFill.register_tile_conditions(tile, tiles)
 		NiceFill.tile_conditions[tile] = {}
 	end
 
-	table.merge(NiceFill.tile_conditions[tile], tiles)
+	SharedUtils.table.merge(NiceFill.tile_conditions[tile], tiles)
 end
 
 ---@param surface LuaSurface
 function NiceFill.create_surface_from(surface)
-	debug.print( "Creating Nicefill surface" )
+	DebugHelper.print( "Creating Nicefill surface" )
 	if DEBUG then log( "Creating Nicefill surface" ) end
 
 	local map_gen_settings = surface.map_gen_settings
@@ -168,7 +168,7 @@ function NiceFill.create_surface_from(surface)
 
 	-- Disable autoplace controls
 	for name, _ in pairs(map_gen_settings.autoplace_controls) do
-		if table.contains(autoplace_controls, name) then
+		if SharedUtils.table.contains(autoplace_controls, name) then
 			map_gen_settings.autoplace_controls[name] = { frequency = 0, size = 0, richness = 0 }
 		end
 	end
@@ -185,7 +185,7 @@ function NiceFill.create_surface_from(surface)
 
 	-- Disable placement of replaceable tiles
 	for name, _ in pairs(map_gen_settings.autoplace_settings.tile.settings) do
-		if table.contains(replaceable_tiles, name) then
+		if SharedUtils.table.contains(replaceable_tiles, name) then
 			map_gen_settings.autoplace_settings.tile.settings[name] = { frequency = 0, size = 0, richness = 0 }
 		end
 	end
@@ -210,7 +210,7 @@ function NiceFill.create_surface_from(surface)
 	-- Try create surface with new map gen settings
 	if not pcall( game.create_surface, nicefill_surface_name, map_gen_settings ) then
 		log( "NiceFill failed to create surface." )
-		debug.print( "NiceFill failed to create surface. Did you disable or enable any mods mid-game ?" )
+		DebugHelper.print( "NiceFill failed to create surface. Did you disable or enable any mods mid-game ?" )
 		return
 	end
 
@@ -237,7 +237,7 @@ end
 ---@return boolean
 function NiceFill.is_nicefill_surface(surface)
 	if surface == nil then return false end
-	return string.starts_with(surface.name, NiceFill.surface_prefix)
+	return SharedUtils.string.starts_with(surface.name, NiceFill.surface_prefix)
 end
 
 ---@param surface LuaSurface
@@ -261,7 +261,7 @@ function NiceFill.get_nice_tile(surface, tile)
 
 	if DEBUG then log( "NiceFill nice tile: " .. nice_tile.name ) end
 
-	if not table.contains(replaceable_tiles, nice_tile.name) then
+	if not SharedUtils.table.contains(replaceable_tiles, nice_tile.name) then
 		return { name = nice_tile.name, position = nice_tile.position }
 	end
 
@@ -316,7 +316,7 @@ function NiceFill.get_smooth_transition_tiles(surface, tiles)
 
 		if DEBUG then log(string.format("Tile: %s, probability: %f, radius: %d", tile.name, probability, radius)) end
 
-		for _, position in pairs(Circle.calculate(radius)) do
+		for _, position in pairs(CircleHelper.calculate(radius)) do
 			---@type MapPosition
 			local temp_position = { x = (tile.position.x + position.x), y = (tile.position.y + position.y) }
 			if DEBUG then log(serpent.line(temp_position)) end
@@ -326,7 +326,7 @@ function NiceFill.get_smooth_transition_tiles(surface, tiles)
 
 			if DEBUG then log(string.format('%s at %d, %d', temp_tile.name, position.x, position.y)) end
 
-			if table.key_exists(NiceFill.smooth_transition_tile_mapping, temp_tile.name) then
+			if SharedUtils.table.key_exists(NiceFill.smooth_transition_tile_mapping, temp_tile.name) then
 				---@type LuaEntity[]
 				local temp_tile_ghosts = surface.find_entities_filtered{ position = temp_position, radius = 1, type="tile-ghost" }
 
@@ -387,7 +387,7 @@ function NiceFill.filter_supported_tiles(tiles)
 	local supported = NiceFill.get_supported_tiles()
 
 	for _, tile in pairs(tiles) do
-		if table.contains(supported, tile.name) then
+		if SharedUtils.table.contains(supported, tile.name) then
 			table.insert( filtered, tile )
 		end
 	end
@@ -405,7 +405,7 @@ function NiceFill.filter_unique_tile_positions(tiles)
 
 	for _, tile in pairs(tiles) do
 		local key = string.format("%d,%d", tile.position.x, tile.position.y)
-		if not table.contains(keys, key) then
+		if not SharedUtils.table.contains(keys, key) then
 			table.insert( filtered, tile )
 			table.insert( keys, key )
 		end
