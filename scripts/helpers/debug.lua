@@ -1,6 +1,6 @@
-local debug = {}
+local Debug = {}
 
-function debug.print(message, ...)
+function Debug.print(message, ...)
     if not DEBUG then
         return
     end
@@ -17,7 +17,7 @@ end
 
 ---@param player LuaPlayer
 ---@param tile string
-function debug.spawn_tiles(player, tile)
+function Debug.spawn_tiles(player, tile)
 	local center = player.position
 	local surface = player.surface
 
@@ -40,4 +40,4 @@ function debug.spawn_tiles(player, tile)
 	)
 end
 
-return debug
+return Debug

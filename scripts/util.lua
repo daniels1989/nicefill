@@ -1,7 +1,9 @@
+local Util = {}
+
 ---@param tile LuaTilePrototype
 ---@param old_tiles OldTileAndPosition[]
 ---@return Tile[]
-function convert_old_tile_and_position(tile, old_tiles)
+function Util.convert_old_tile_and_position(tile, old_tiles)
 	---@type Tile[]
 	local tiles = {}
 
@@ -11,3 +13,5 @@ function convert_old_tile_and_position(tile, old_tiles)
 
 	return tiles
 end
+
+return Util
