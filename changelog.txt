@@ -4,8 +4,10 @@ Date: 23. 10. 2024
   Features:
     - Complete internal overhaul
     - Adds support for Gleba (Space Age)
-    - The other space age planets cannot be landfilled
+    - The other Space Age planets cannot be landfilled
+  Bugfixes:
     - Fixes NiceFill surface generation, broken in 0.2.0, which caused wrong tiles to be generated
+  Changes:
     - Removed FARL support as it hasn't been updated in 3 years
 ---------------------------------------------------------------------------------------------------
 Version: 0.2.0
@@ -22,6 +24,8 @@ Version: 0.1.20
 Date: 02. 05. 2021
   Features:
     - Added support for script_raised_set_tiles
+  Info:
+    - Forked from staviq's NiceFill
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.19
 Date: 28. 11. 2020
