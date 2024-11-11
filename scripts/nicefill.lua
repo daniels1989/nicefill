@@ -450,6 +450,22 @@ function NiceFill.get_smooth_transition_tiles(surface, tiles)
 	return smooth_tiles
 end
 
+function NiceFill.cleanup_chunks()
+	for _, surface in pairs(game.surfaces) do
+		if NiceFill.is_nicefill_surface(surface) then
+			local normal_surface_name = NiceFill.get_normal_surface_name_from(surface)
+			local normal_surface = game.get_surface(normal_surface_name)
+
+			if normal_surface ~= nil then
+				---@type ChunkPositionAndArea
+				for chunk in surface.get_chunks() do
+					log(serpent.block(surface.find_tiles_filtered{area = chunk.area}))
+				end
+			end
+		end
+	end
+end
+
 ---@param surface LuaSurface?
 ---@param tiles Tile[]
 ---@return boolean

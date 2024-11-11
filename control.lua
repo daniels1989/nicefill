@@ -123,6 +123,13 @@ if DEBUG then
 		for _, tile in pairs(tiles) do DebugHelper.print(tile.name) end
 	end)
 
+	commands.add_command('nf_test', nil, function (command)
+		local player = game.get_player(command.player_index)
+		if player == nil then return end
+
+		NiceFill.cleanup_chunks()
+	end)
+
 	script.on_event(defines.events.on_chunk_generated, function(event)
 		if NiceFill.is_nicefill_surface(event.surface) then
 			DebugHelper.print(serpent.block( event.area ) )
