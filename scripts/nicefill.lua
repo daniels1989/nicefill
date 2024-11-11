@@ -309,12 +309,23 @@ function NiceFill.get_surface_from(surface)
 end
 
 ---@param surface LuaSurface
+---@return string
 function NiceFill.get_surface_name_from(surface)
 	if NiceFill.is_nicefill_surface(surface) then
 		return surface.name
 	end
 
 	return NiceFill.surface_prefix .. surface.name
+end
+
+---@param surface LuaSurface
+---@return string
+function NiceFill.get_normal_surface_name_from(surface)
+	if not NiceFill.is_nicefill_surface(surface) then
+		return surface.name
+	end
+
+	return string.sub(surface.name, #NiceFill.surface_prefix + 1)
 end
 
 ---@param surface LuaSurface?
