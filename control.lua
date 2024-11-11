@@ -6,12 +6,15 @@ CircleHelper = require 'scripts/helpers/circle'
 DebugHelper = require 'scripts/helpers/debug'
 SurfaceHelper = require 'scripts/helpers/surface'
 
--- require utils
+-- Require utils
 SharedUtils = require 'utils/init'
 ScriptUtils = require 'scripts/util'
 
--- require the thing that does all the things
+-- Require the thing that does all the things
 NiceFill = require 'scripts/nicefill'
+
+-- Require remote interface
+require 'scripts/remote_interface'
 
 -- For testing
 -- Unlock planets with /cheat planetname, e.g. /cheat gleba
@@ -91,10 +94,6 @@ script.on_event(defines.events.on_surface_created, function(event)
 		end
 	end
 end)
-
--- /c remote.call("NiceFill", "spawn_tiles")
--- remote.add_interface("NiceFill", {
--- })
 
 if DEBUG then
 	-- /nf_spawn_tiles landfill
