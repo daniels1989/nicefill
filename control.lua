@@ -1,5 +1,5 @@
 -- Set to true to enable full logging.
-DEBUG = true
+DEBUG = false
 
 -- Require runtime helpers
 CircleHelper = require 'scripts/helpers/circle'
