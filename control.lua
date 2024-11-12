@@ -7,7 +7,7 @@ DebugHelper = require 'scripts/helpers/debug'
 SurfaceHelper = require 'scripts/helpers/surface'
 
 -- Require utils
-SharedUtils = require 'utils/init'
+SharedUtils = require 'shared/util'
 ScriptUtils = require 'scripts/util'
 
 -- Require the thing that does all the things
