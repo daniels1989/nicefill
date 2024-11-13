@@ -4,6 +4,11 @@ NiceFill.surface_prefix = "NiceFill_"
 NiceFill.tile_conditions = {
 	["landfill"] = {
 		"water", "deepwater", "water-green", "deepwater-green", --nauvis
+		--nauvis, added in base but can't be landfilled without Space Age?
+		--Supposedly these were only used in tutorials in the base
+		--Other mods can still add these though
+		"water-mud",
+		"water-shallow",
 	}
 }
 NiceFill.smooth_transition_tile_mapping = {
@@ -17,10 +22,6 @@ NiceFill.smooth_transition_radius = {
 
 if script.active_mods['space-age'] then
 	SharedUtils.table.merge(NiceFill.tile_conditions["landfill"], {
-		--nauvis, added in base but can't be landfilled without Space Age?
-		--Supposedly these were only used in tutorials in the base
-		"water-mud",
-		"water-shallow",
 
 		-- gleba
 		"wetland-light-green-slime",
