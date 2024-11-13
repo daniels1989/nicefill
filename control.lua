@@ -16,6 +16,9 @@ NiceFill = require 'scripts/nicefill'
 -- Require remote interface
 require 'scripts/remote_interface'
 
+-- Setup tile conditions from our fake deconstruction planners
+require 'scripts/setup'
+
 -- For testing
 -- Unlock planets with /cheat planetname, e.g. /cheat gleba
 -- To hop between unlocked planets use /c game.player.teleport(game.player.position, "planetname")
