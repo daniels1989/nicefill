@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.2
+Date: 13. 11. 2024
+  Bugfixes:
+    - Support shallow water and mud from base Factorio because other mods can still use these during generation
+---------------------------------------------------------------------------------------------------
 Version: 1.1.1
 Date: 12. 11. 2024
   Bugfixes:
