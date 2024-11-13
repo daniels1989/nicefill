@@ -87,8 +87,7 @@ function NiceFill.register_tile_conditions(tile, tiles)
 		NiceFill.tile_conditions[tile] = {}
 	end
 
-	log(string.format("[NiceFill] Registering additional tile conditions for tile '%s'", tile))
-	log(serpent.block(tiles))
+	log(string.format("[NiceFill] Registering additional tile conditions for tile '%s': %s", tile, serpent.line(tiles)))
 
 	SharedUtils.table.merge(NiceFill.tile_conditions[tile], tiles)
 end
@@ -403,9 +402,12 @@ function NiceFill.get_smooth_transition_tiles(surface, tiles)
 
 		local radius = 0
 		local probability = math.random()
-		for new_radius, probability_threshold in pairs(NiceFill.smooth_transition_radius[tile.name]) do
-			if probability >= probability_threshold then
-				radius = new_radius
+
+		if NiceFill.smooth_transition_radius[tile.name] ~= nil then
+			for new_radius, probability_threshold in pairs(NiceFill.smooth_transition_radius[tile.name]) do
+				if probability >= probability_threshold then
+					radius = new_radius
+				end
 			end
 		end
 
