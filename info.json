@@ -10,5 +10,10 @@
     ],
     "author": "daniels1989",
     "contact": "",
-    "homepage": "https://github.com/daniels1989/nicefill"
+    "homepage": "https://github.com/daniels1989/nicefill",
+    "package": {
+        "ignore": [
+            "**/*.psd"
+        ]
+    }
 }
