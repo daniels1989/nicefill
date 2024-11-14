@@ -19,10 +19,8 @@ NiceFill.smooth_transition_radius = {
 	["landfill"] = {0, 0.5, 0.8, 0.92, 0.99}, -- 50%, 30%, 12%, 7%, 1%
 }
 
-
 if script.active_mods['space-age'] then
 	SharedUtils.table.merge(NiceFill.tile_conditions["landfill"], {
-
 		-- gleba
 		"wetland-light-green-slime",
 		"wetland-green-slime",
@@ -183,8 +181,8 @@ function NiceFill.run(surface_index, tiles)
 	-- Validate the NiceFill surface
 	if NiceFillSurface ~= nil and not NiceFill.validate_surface(NiceFillSurface, tiles) then
 		-- Delete the surface if it's invalid
-		game.delete_surface(NiceFillSurface)
-		NiceFillSurface = NiceFill.get_surface_from(surface) -- Should be the same as NiceFillSurface = nil
+		NiceFill.delete_surface(NiceFillSurface)
+		NiceFillSurface = nil -- Set to nil as the surface has been renamed and marked for deletion
 	end
 
 	-- If there's no NiceFill surface at this point, try to create it
@@ -303,6 +301,23 @@ function NiceFill.create_surface_from(surface)
 end
 
 ---@param surface LuaSurface
+---@return boolean
+function NiceFill.delete_surface(surface)
+	if not NiceFill.is_nicefill_surface(surface) then
+		return false
+	end
+
+	local old_name = surface.name
+
+	-- Rename the surface to free up the name
+	surface.name = old_name .. '-deleted-' .. game.tick
+
+	if DEBUG then log(string.format('Marking surface "%s" (%s) for deletion', old_name, surface.name)) end
+
+	return game.delete_surface(surface) -- Happens in a different tick
+end
+
+---@param surface LuaSurface
 ---@return LuaSurface?
 function NiceFill.get_surface_from(surface)
 	local nicefill_name = NiceFill.get_surface_name_from(surface)
@@ -368,6 +383,8 @@ function NiceFill.get_nice_tile(surface, tile)
 		math.floor(tile.position.x),
 		math.floor(tile.position.y)
 	))
+
+	return nil
 end
 
 ---@param surface LuaSurface
