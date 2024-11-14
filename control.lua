@@ -95,6 +95,17 @@ script.on_event(defines.events.on_surface_created, function(event)
 	end
 end)
 
+script.on_event(defines.events.on_surface_renamed, function(event)
+	if NiceFill.is_nicefill_surface(game.get_surface(event.surface_index)) then
+		log(string.format(
+			'[NiceFill] Renamed surface "%s" to "%s" on tick %d',
+			event.old_name,
+			event.new_name,
+			event.tick
+		))
+	end
+end)
+
 if DEBUG then
 	-- /nf_spawn_tiles landfill
 	commands.add_command('nf_spawn_tiles', nil, function (command)
